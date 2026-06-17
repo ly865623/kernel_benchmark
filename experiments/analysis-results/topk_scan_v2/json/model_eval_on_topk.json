@@ -1,0 +1,51 @@
+{
+  "model": "stage-centric-wave-quantized-dsa-v2 (existing calibration, no refit)",
+  "eval_grid": "grid_topk_v2 (topk in {1024,2048}, 104 configs)",
+  "anchored": {
+    "all": {
+      "n": 104,
+      "mape_pct": 14.693,
+      "mae_us": 7.7794,
+      "worst_pct": 37.45,
+      "roofline_mape_pct": 47.56
+    },
+    "topk_1024": {
+      "n": 56,
+      "mape_pct": 4.83,
+      "mae_us": 1.6851,
+      "worst_pct": 11.06,
+      "roofline_mape_pct": 50.38
+    },
+    "topk_2048": {
+      "n": 48,
+      "mape_pct": 26.2,
+      "mae_us": 14.8894,
+      "worst_pct": 37.45,
+      "roofline_mape_pct": 44.27
+    }
+  },
+  "profiler": {
+    "all": {
+      "n": 104,
+      "mape_pct": 14.731,
+      "mae_us": 7.7984,
+      "worst_pct": 37.54,
+      "roofline_mape_pct": 47.56
+    },
+    "topk_1024": {
+      "n": 56,
+      "mape_pct": 4.821,
+      "mae_us": 1.6676,
+      "worst_pct": 11.14,
+      "roofline_mape_pct": 50.38
+    },
+    "topk_2048": {
+      "n": 48,
+      "mape_pct": 26.293,
+      "mae_us": 14.951,
+      "worst_pct": 37.54,
+      "roofline_mape_pct": 44.27
+    }
+  },
+  "note": "K_tiles=ceil(topk/128) so model scales topk=2048 work x2 vs topk=1024 (linear). Measured latency(2048)/latency(1024)=1.61x (sub-2x, fixed-overhead amortization), so the linear-K_tiles model is expected to over-predict topk=2048."
+}

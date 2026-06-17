@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "ok": true,
+  "language_firewall_ok": true,
+  "scope": "main_text",
+  "file_count": 0,
+  "blocker_count": 0,
+  "warning_count": 0,
+  "violations": [],
+  "updated_at": "2026-06-16T09:20:32+00:00"
+}

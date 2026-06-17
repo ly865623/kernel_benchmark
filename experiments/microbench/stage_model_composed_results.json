@@ -1,0 +1,2195 @@
+{
+  "model": "stage-centric-wave-quantized-dsa-COMPOSED-constraint-compliant",
+  "constraint": "whole fused operator never run on-board; per-k-iter t_step composed from isolated primitive microbenchmarks + source pipeline structure; ZERO fit to whole-kernel latency. anchored_oracle column is the FORBIDDEN reference only.",
+  "method": "T_pred = num_waves*(T_pro + k_tiles*t_step + T_epi); t_step = max(t_step_overlap, t_scoring); t_scoring = chain_lat(QK) + h + t_softmax + h + chain_lat(SV) + h; h = one-way cross-warp mbarrier signal latency (sync_bench).",
+  "primitives": {
+    "clk_ghz": 1.965,
+    "mma_n128_cyc": 37.106,
+    "mma_n256_cyc": 64.648,
+    "mma_n128_lat_cyc": 178.0,
+    "mma_n256_lat_cyc": 210.0,
+    "gather_ns_64": 16.2,
+    "exp2_gops_per_sm": 24.8,
+    "tma_bw_tbps": 3.75,
+    "h_oneway_ns": 140.33,
+    "tiles_per_wave": 74
+  },
+  "tile_amortized_ns": {
+    "T_pro": 39.3216,
+    "T_epi": 34.952533333333335
+  },
+  "per_kernel": {
+    "1024": {
+      "B_TOPK": 64,
+      "k_tiles": 16,
+      "t_qk_chain": 411.604,
+      "t_sv_chain": 205.569,
+      "t_scoring": 1203.325,
+      "t_step": 1203.325,
+      "t_sync_pred": 731.824,
+      "t_step_overlap": 471.501,
+      "forbidden_oracle_resid_ns": 749.2
+    },
+    "2048": {
+      "B_TOPK": 128,
+      "k_tiles": 16,
+      "t_qk_chain": 666.166,
+      "t_sv_chain": 337.168,
+      "t_scoring": 1754.647,
+      "t_step": 1754.647,
+      "t_sync_pred": 899.254,
+      "t_step_overlap": 855.393,
+      "forbidden_oracle_resid_ns": 1157.6
+    }
+  },
+  "results": {
+    "1024": {
+      "n_cfg": 56,
+      "roofline_mape_pct": 50.38,
+      "composed": {
+        "mape_pct": 4.92,
+        "worst_abs_pct_err": 11.0
+      },
+      "micro_overlap": {
+        "mape_pct": 62.5,
+        "worst_abs_pct_err": 64.92
+      },
+      "micro_serial": {
+        "mape_pct": 48.22,
+        "worst_abs_pct_err": 51.56
+      },
+      "anchored_oracle": {
+        "mape_pct": 3.84,
+        "worst_abs_pct_err": 9.72
+      }
+    },
+    "2048": {
+      "n_cfg": 48,
+      "roofline_mape_pct": 44.27,
+      "composed": {
+        "mape_pct": 14.28,
+        "worst_abs_pct_err": 18.77
+      },
+      "micro_overlap": {
+        "mape_pct": 58.1,
+        "worst_abs_pct_err": 60.29
+      },
+      "micro_serial": {
+        "mape_pct": 40.42,
+        "worst_abs_pct_err": 43.54
+      },
+      "anchored_oracle": {
+        "mape_pct": 2.6,
+        "worst_abs_pct_err": 6.84
+      }
+    },
+    "both": {
+      "n_cfg": 104,
+      "roofline_mape_pct": 47.56,
+      "composed": {
+        "mape_pct": 9.24,
+        "worst_abs_pct_err": 18.77
+      },
+      "micro_overlap": {
+        "mape_pct": 60.47,
+        "worst_abs_pct_err": 64.92
+      },
+      "micro_serial": {
+        "mape_pct": 44.62,
+        "worst_abs_pct_err": 51.56
+      },
+      "anchored_oracle": {
+        "mape_pct": 3.27,
+        "worst_abs_pct_err": 9.72
+      }
+    }
+  },
+  "composed_per_config": {
+    "1024": [
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 1024,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.456,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.66
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.626,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.52
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.297,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.16
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.874,
+        "pred_us": 19.327,
+        "abs_pct_err": 2.75
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.534,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.06
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.886,
+        "pred_us": 19.327,
+        "abs_pct_err": 2.81
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.569,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.23
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 1024,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.09,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.24
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.405,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.4
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.343,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.08
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.549,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.13
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.473,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.75
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.496,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.87
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.595,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.36
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 1024,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.764,
+        "pred_us": 19.327,
+        "abs_pct_err": 6.92
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.875,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.41
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.954,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.76
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.945,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.72
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.945,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.72
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 21.11,
+        "pred_us": 19.327,
+        "abs_pct_err": 8.45
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 21.005,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.99
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 1024,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.436,
+        "pred_us": 19.327,
+        "abs_pct_err": 9.84
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.439,
+        "pred_us": 19.327,
+        "abs_pct_err": 9.85
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.621,
+        "pred_us": 19.327,
+        "abs_pct_err": 10.61
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.552,
+        "pred_us": 19.327,
+        "abs_pct_err": 10.32
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.666,
+        "pred_us": 19.327,
+        "abs_pct_err": 10.79
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.604,
+        "pred_us": 19.327,
+        "abs_pct_err": 10.54
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.716,
+        "pred_us": 19.327,
+        "abs_pct_err": 11.0
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 1024,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.543,
+        "pred_us": 38.655,
+        "abs_pct_err": 4.66
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 4096,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 41.042,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.82
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 8192,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.768,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.18
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 16384,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.846,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.36
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 32768,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.87,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.42
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 65536,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.955,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.62
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 131072,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.872,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.43
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 1024,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.675,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.25
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 4096,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.993,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.95
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 8192,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.943,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.84
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 16384,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 42.125,
+        "pred_us": 38.655,
+        "abs_pct_err": 8.24
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 32768,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.967,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.89
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 65536,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 42.061,
+        "pred_us": 38.655,
+        "abs_pct_err": 8.1
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 131072,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.943,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.84
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 1024,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.53,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.55
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 4096,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.813,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.91
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 8192,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.513,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.53
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 16384,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.934,
+        "pred_us": 77.31,
+        "abs_pct_err": 2.06
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 32768,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.654,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.71
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 65536,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.71,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.78
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 131072,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.686,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.75
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 1024,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.08,
+        "pred_us": 77.31,
+        "abs_pct_err": 3.46
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 4096,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.08,
+        "pred_us": 77.31,
+        "abs_pct_err": 3.46
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 8192,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.957,
+        "pred_us": 77.31,
+        "abs_pct_err": 4.5
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 16384,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.621,
+        "pred_us": 77.31,
+        "abs_pct_err": 4.11
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 32768,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.27,
+        "pred_us": 77.31,
+        "abs_pct_err": 3.69
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 65536,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.632,
+        "pred_us": 77.31,
+        "abs_pct_err": 4.12
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 131072,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.71,
+        "pred_us": 77.31,
+        "abs_pct_err": 4.21
+      }
+    ],
+    "2048": [
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 31.652,
+        "pred_us": 28.149,
+        "abs_pct_err": 11.07
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.309,
+        "pred_us": 28.149,
+        "abs_pct_err": 12.88
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.134,
+        "pred_us": 28.149,
+        "abs_pct_err": 12.4
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.618,
+        "pred_us": 28.149,
+        "abs_pct_err": 13.7
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.284,
+        "pred_us": 28.149,
+        "abs_pct_err": 12.81
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.7,
+        "pred_us": 28.149,
+        "abs_pct_err": 13.92
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.159,
+        "pred_us": 28.149,
+        "abs_pct_err": 9.66
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.405,
+        "pred_us": 28.149,
+        "abs_pct_err": 10.37
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.571,
+        "pred_us": 28.149,
+        "abs_pct_err": 10.84
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.57,
+        "pred_us": 28.149,
+        "abs_pct_err": 10.84
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.768,
+        "pred_us": 28.149,
+        "abs_pct_err": 11.39
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.655,
+        "pred_us": 28.149,
+        "abs_pct_err": 11.08
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.26,
+        "pred_us": 28.149,
+        "abs_pct_err": 15.37
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.293,
+        "pred_us": 28.149,
+        "abs_pct_err": 15.45
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.391,
+        "pred_us": 28.149,
+        "abs_pct_err": 15.7
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.572,
+        "pred_us": 28.149,
+        "abs_pct_err": 16.15
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.67,
+        "pred_us": 28.149,
+        "abs_pct_err": 16.4
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.655,
+        "pred_us": 28.149,
+        "abs_pct_err": 16.36
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.082,
+        "pred_us": 28.149,
+        "abs_pct_err": 17.41
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.341,
+        "pred_us": 28.149,
+        "abs_pct_err": 18.03
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.139,
+        "pred_us": 28.149,
+        "abs_pct_err": 17.55
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.445,
+        "pred_us": 28.149,
+        "abs_pct_err": 18.28
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.453,
+        "pred_us": 28.149,
+        "abs_pct_err": 18.3
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.652,
+        "pred_us": 28.149,
+        "abs_pct_err": 18.77
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 4096,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 65.719,
+        "pred_us": 56.297,
+        "abs_pct_err": 14.34
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 8192,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 66.426,
+        "pred_us": 56.297,
+        "abs_pct_err": 15.25
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 16384,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 66.007,
+        "pred_us": 56.297,
+        "abs_pct_err": 14.71
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 32768,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 65.957,
+        "pred_us": 56.297,
+        "abs_pct_err": 14.65
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 65536,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 65.873,
+        "pred_us": 56.297,
+        "abs_pct_err": 14.54
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 131072,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 66.597,
+        "pred_us": 56.297,
+        "abs_pct_err": 15.47
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 4096,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.137,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.15
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 8192,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.276,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.32
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 16384,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.353,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.41
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 32768,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.345,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.4
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 65536,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.606,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.73
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 131072,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.581,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.7
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 4096,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 127.876,
+        "pred_us": 112.595,
+        "abs_pct_err": 11.95
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 8192,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.164,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.15
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 16384,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.051,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.07
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 32768,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.149,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.14
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 65536,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.042,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.06
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 131072,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.331,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.26
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 4096,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 129.357,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.96
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 8192,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 130.243,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.55
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 16384,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 130.192,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.52
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 32768,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 130.164,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.5
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 65536,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 129.89,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.32
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 131072,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 130.312,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.6
+      }
+    ],
+    "both": [
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 1024,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.456,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.66
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.626,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.52
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.297,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.16
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.874,
+        "pred_us": 19.327,
+        "abs_pct_err": 2.75
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.534,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.06
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.886,
+        "pred_us": 19.327,
+        "abs_pct_err": 2.81
+      },
+      {
+        "topk": 1024,
+        "batch_size": 1,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 19.569,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.23
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 1024,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.09,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.24
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.405,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.4
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.343,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.08
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.549,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.13
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.473,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.75
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.496,
+        "pred_us": 19.327,
+        "abs_pct_err": 0.87
+      },
+      {
+        "topk": 1024,
+        "batch_size": 32,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 19.595,
+        "pred_us": 19.327,
+        "abs_pct_err": 1.36
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 1024,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.764,
+        "pred_us": 19.327,
+        "abs_pct_err": 6.92
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.875,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.41
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.954,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.76
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.945,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.72
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 20.945,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.72
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 21.11,
+        "pred_us": 19.327,
+        "abs_pct_err": 8.45
+      },
+      {
+        "topk": 1024,
+        "batch_size": 64,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 21.005,
+        "pred_us": 19.327,
+        "abs_pct_err": 7.99
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 1024,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.436,
+        "pred_us": 19.327,
+        "abs_pct_err": 9.84
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.439,
+        "pred_us": 19.327,
+        "abs_pct_err": 9.85
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.621,
+        "pred_us": 19.327,
+        "abs_pct_err": 10.61
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.552,
+        "pred_us": 19.327,
+        "abs_pct_err": 10.32
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.666,
+        "pred_us": 19.327,
+        "abs_pct_err": 10.79
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.604,
+        "pred_us": 19.327,
+        "abs_pct_err": 10.54
+      },
+      {
+        "topk": 1024,
+        "batch_size": 74,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 21.716,
+        "pred_us": 19.327,
+        "abs_pct_err": 11.0
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 1024,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.543,
+        "pred_us": 38.655,
+        "abs_pct_err": 4.66
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 4096,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 41.042,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.82
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 8192,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.768,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.18
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 16384,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.846,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.36
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 32768,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.87,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.42
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 65536,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.955,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.62
+      },
+      {
+        "topk": 1024,
+        "batch_size": 128,
+        "s_kv": 131072,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 40.872,
+        "pred_us": 38.655,
+        "abs_pct_err": 5.43
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 1024,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.675,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.25
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 4096,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.993,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.95
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 8192,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.943,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.84
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 16384,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 42.125,
+        "pred_us": 38.655,
+        "abs_pct_err": 8.24
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 32768,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.967,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.89
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 65536,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 42.061,
+        "pred_us": 38.655,
+        "abs_pct_err": 8.1
+      },
+      {
+        "topk": 1024,
+        "batch_size": 148,
+        "s_kv": 131072,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 41.943,
+        "pred_us": 38.655,
+        "abs_pct_err": 7.84
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 1024,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.53,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.55
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 4096,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.813,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.91
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 8192,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.513,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.53
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 16384,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.934,
+        "pred_us": 77.31,
+        "abs_pct_err": 2.06
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 32768,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.654,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.71
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 65536,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.71,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.78
+      },
+      {
+        "topk": 1024,
+        "batch_size": 256,
+        "s_kv": 131072,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 78.686,
+        "pred_us": 77.31,
+        "abs_pct_err": 1.75
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 1024,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.08,
+        "pred_us": 77.31,
+        "abs_pct_err": 3.46
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 4096,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.08,
+        "pred_us": 77.31,
+        "abs_pct_err": 3.46
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 8192,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.957,
+        "pred_us": 77.31,
+        "abs_pct_err": 4.5
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 16384,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.621,
+        "pred_us": 77.31,
+        "abs_pct_err": 4.11
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 32768,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.27,
+        "pred_us": 77.31,
+        "abs_pct_err": 3.69
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 65536,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.632,
+        "pred_us": 77.31,
+        "abs_pct_err": 4.12
+      },
+      {
+        "topk": 1024,
+        "batch_size": 296,
+        "s_kv": 131072,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 80.71,
+        "pred_us": 77.31,
+        "abs_pct_err": 4.21
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 31.652,
+        "pred_us": 28.149,
+        "abs_pct_err": 11.07
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.309,
+        "pred_us": 28.149,
+        "abs_pct_err": 12.88
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.134,
+        "pred_us": 28.149,
+        "abs_pct_err": 12.4
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.618,
+        "pred_us": 28.149,
+        "abs_pct_err": 13.7
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.284,
+        "pred_us": 28.149,
+        "abs_pct_err": 12.81
+      },
+      {
+        "topk": 2048,
+        "batch_size": 1,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.014,
+        "measured_us": 32.7,
+        "pred_us": 28.149,
+        "abs_pct_err": 13.92
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.159,
+        "pred_us": 28.149,
+        "abs_pct_err": 9.66
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.405,
+        "pred_us": 28.149,
+        "abs_pct_err": 10.37
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.571,
+        "pred_us": 28.149,
+        "abs_pct_err": 10.84
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.57,
+        "pred_us": 28.149,
+        "abs_pct_err": 10.84
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.768,
+        "pred_us": 28.149,
+        "abs_pct_err": 11.39
+      },
+      {
+        "topk": 2048,
+        "batch_size": 32,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.432,
+        "measured_us": 31.655,
+        "pred_us": 28.149,
+        "abs_pct_err": 11.08
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.26,
+        "pred_us": 28.149,
+        "abs_pct_err": 15.37
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.293,
+        "pred_us": 28.149,
+        "abs_pct_err": 15.45
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.391,
+        "pred_us": 28.149,
+        "abs_pct_err": 15.7
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.572,
+        "pred_us": 28.149,
+        "abs_pct_err": 16.15
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.67,
+        "pred_us": 28.149,
+        "abs_pct_err": 16.4
+      },
+      {
+        "topk": 2048,
+        "batch_size": 64,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 0.865,
+        "measured_us": 33.655,
+        "pred_us": 28.149,
+        "abs_pct_err": 16.36
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 4096,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.082,
+        "pred_us": 28.149,
+        "abs_pct_err": 17.41
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 8192,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.341,
+        "pred_us": 28.149,
+        "abs_pct_err": 18.03
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 16384,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.139,
+        "pred_us": 28.149,
+        "abs_pct_err": 17.55
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 32768,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.445,
+        "pred_us": 28.149,
+        "abs_pct_err": 18.28
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 65536,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.453,
+        "pred_us": 28.149,
+        "abs_pct_err": 18.3
+      },
+      {
+        "topk": 2048,
+        "batch_size": 74,
+        "s_kv": 131072,
+        "num_waves": 1,
+        "wave_fill": 1.0,
+        "measured_us": 34.652,
+        "pred_us": 28.149,
+        "abs_pct_err": 18.77
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 4096,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 65.719,
+        "pred_us": 56.297,
+        "abs_pct_err": 14.34
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 8192,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 66.426,
+        "pred_us": 56.297,
+        "abs_pct_err": 15.25
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 16384,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 66.007,
+        "pred_us": 56.297,
+        "abs_pct_err": 14.71
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 32768,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 65.957,
+        "pred_us": 56.297,
+        "abs_pct_err": 14.65
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 65536,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 65.873,
+        "pred_us": 56.297,
+        "abs_pct_err": 14.54
+      },
+      {
+        "topk": 2048,
+        "batch_size": 128,
+        "s_kv": 131072,
+        "num_waves": 2,
+        "wave_fill": 0.865,
+        "measured_us": 66.597,
+        "pred_us": 56.297,
+        "abs_pct_err": 15.47
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 4096,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.137,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.15
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 8192,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.276,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.32
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 16384,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.353,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.41
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 32768,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.345,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.4
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 65536,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.606,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.73
+      },
+      {
+        "topk": 2048,
+        "batch_size": 148,
+        "s_kv": 131072,
+        "num_waves": 2,
+        "wave_fill": 1.0,
+        "measured_us": 67.581,
+        "pred_us": 56.297,
+        "abs_pct_err": 16.7
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 4096,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 127.876,
+        "pred_us": 112.595,
+        "abs_pct_err": 11.95
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 8192,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.164,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.15
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 16384,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.051,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.07
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 32768,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.149,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.14
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 65536,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.042,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.06
+      },
+      {
+        "topk": 2048,
+        "batch_size": 256,
+        "s_kv": 131072,
+        "num_waves": 4,
+        "wave_fill": 0.865,
+        "measured_us": 128.331,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.26
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 4096,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 129.357,
+        "pred_us": 112.595,
+        "abs_pct_err": 12.96
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 8192,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 130.243,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.55
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 16384,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 130.192,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.52
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 32768,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 130.164,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.5
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 65536,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 129.89,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.32
+      },
+      {
+        "topk": 2048,
+        "batch_size": 296,
+        "s_kv": 131072,
+        "num_waves": 4,
+        "wave_fill": 1.0,
+        "measured_us": 130.312,
+        "pred_us": 112.595,
+        "abs_pct_err": 13.6
+      }
+    ]
+  }
+}

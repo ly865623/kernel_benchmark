@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "paper_line": "paper-dsa-stagepred-grid-v2-outline-001-dsa-stagepred-grid-v2",
+  "selected_outline_ref": "outline-001",
+  "overall_status": "ready",
+  "review_date": "2026-06-12",
+  "reviewer_stance": "independent skeptical audit before submission packaging",
+  "verdict": "accept-quality with minor (writing-only) clarifications; no new experiments required",
+  "manuscript": {
+    "draft_path": "paper/latex/main.tex",
+    "pdf_path": "paper/latex/main.pdf",
+    "compile_ok": true,
+    "pages": 7
+  },
+  "items": [
+    {
+      "id": "compile",
+      "label": "LaTeX compiles clean (0 errors, no undefined refs/citations)",
+      "status": "passed",
+      "evidence": "paper/latex/compile_report.json (compile_ok=true)"
+    },
+    {
+      "id": "pdf_present",
+      "label": "Compiled PDF present",
+      "status": "passed",
+      "evidence": "paper/latex/main.pdf"
+    },
+    {
+      "id": "sections",
+      "label": "All core sections present (intro/related/method/experiments/analysis/limitations/conclusion + appendices)",
+      "status": "passed"
+    },
+    {
+      "id": "figures_tables",
+      "label": "Paper-facing figures and tables present and data-backed",
+      "status": "passed",
+      "evidence": "16 figures, 10 displays; 9 analysis groups"
+    },
+    {
+      "id": "evidence_authenticity",
+      "label": "Headline numbers traced to durable on-board microbenchmark result file (MAPE 3.27%, worst 9.72%, roofline 47.56%, 104 configs across two dispatch kernels)",
+      "status": "passed",
+      "evidence": "experiments/microbench/stage_model_microbench_2kernel_results.json"
+    },
+    {
+      "id": "no_fit_contract",
+      "label": "No coefficient fit to target latencies; stage coefficients come from standalone on-board operator microbenchmarks plus one single-row anchor per kernel (interpretable)",
+      "status": "passed",
+      "evidence": "experiments/main/dsa_predictor.py; experiments/microbench/stage_model_microbench_2kernel_results.json; coefficient provenance documented (no in-kernel profiler)"
+    },
+    {
+      "id": "claim_evidence_map",
+      "label": "Every core claim (C1-C3) maps to durable evidence",
+      "status": "passed",
+      "evidence": "paper/claim_evidence_map.json; required items A1-A4 + dsa-stagepred-grid-v2 resolved in evidence_ledger.json (on-board)"
+    },
+    {
+      "id": "language_firewall",
+      "label": "No operator/agent/worktree/route wording or implementation shorthand in main text",
+      "status": "passed",
+      "evidence": "validate_manuscript_language firewall_ok=true"
+    },
+    {
+      "id": "references",
+      "label": "References are canonical/verifiable; no fabricated-citation risk",
+      "status": "passed",
+      "evidence": "paper/latex/references.bib"
+    },
+    {
+      "id": "scope_honesty",
+      "label": "Scope and limitations stated honestly (single device; cross-arch as protocol not claim; worst-config disclosed)",
+      "status": "passed"
+    },
+    {
+      "id": "review_revisions",
+      "label": "Independent review completed; recommended writing revision K1 (T_launch provenance) applied and recompiled; numbers unchanged",
+      "status": "passed",
+      "evidence": "paper/review/review.md, paper/review/revision_log.md"
+    },
+    {
+      "id": "package_type",
+      "label": "Bundle registered as submission_package",
+      "status": "passed",
+      "evidence": "paper/paper_bundle_manifest.json"
+    }
+  ],
+  "follow_up_required": false,
+  "route_recommendation": "finalize",
+  "produced_at": "2026-06-12T11:49:00+00:00",
+  "note": "JSON submission checklist registered for the runtime submission gate. Reflects the completed independent review (paper/review/review.md). Manuscript content, data, and numbers are unchanged."
+}

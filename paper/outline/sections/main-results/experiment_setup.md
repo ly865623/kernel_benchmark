@@ -1,0 +1,13 @@
+# Setup · Main Results
+
+## Recorded Setup Notes
+
+- Per-configuration whole-kernel latency: stage-model prediction vs naive datasheet-peak roofline on the identical 104-config grid (both dispatch kernels). No coefficient fit to target latencies.
+- Per-iteration operator costs (ns) from standalone on-board microbenchmarks for both kernels (tile::gather4 TMA, register-resident exp2 softmax, QK and SV MMA atoms), compared against measured per-iteration time.
+- Measured and predicted whole-kernel latency versus context length s_kv at fixed selection budget, across the 104-config grid; across-s_kv spread computed per batch from the on-board measured latencies.
+- Leave-one-term ablation of the closed-form model: full model vs a variant that omits the discrete wave term (continuous work), evaluated on the full 104-config grid.
+- Zero-anchor ablation of the calibration: fully-overlapped operator sum and fully-serialized operator sum (no pipeline-sync term) vs the single-anchor model, on the full 104-config grid. Supersedes the obsolete profiler-era 'per-wave-span coefficient sensitivity' analysis: the on-board model replaces the fitted per-wave span with one measured anchor, so the relevant calibration-sensitivity question is anchor necessity, not span scaling.
+- Per-configuration absolute percentage error decomposed by wave occupancy (num_waves) and fill, computed from the on-board 104-config grid; residual sign taken as pred minus measured on the worst single-wave configs.
+- Per-configuration bound classification derived from the standalone on-board operator costs: which operator forms the overlap envelope (binder) for each kernel across the 104-config grid.
+- Specification of exactly what must be re-measured (4 operators + 1 anchor per kernel) and what is read from source (structural constants) to transfer the model to another Blackwell-class accelerator. No second device validated.
+- B200 (sm100), container ds003-flashmla. Target: FlashMLA DSA sparse-prefill forward (sparse_attn_fwd, phase1.cuh), two-CTA cluster -> 74 two-SM tiles/wave on 148 SMs. Both dispatch kernels: small-budget (B_topk=64, topk=1024, 56 cfgs) and regular (B_topk=128, topk=2048, 48 cfgs); 104 configs over batch s_q in {1,32,64,74,128,148,256,296} x context s_kv. Ground truth = kk.bench_kineto median, clean (no-instrumentation) build. Stage cost composed purely from standalone on-board operator microbenchmarks (gather4 TMA, register-resident exp2 softmax, QK and SV MMA atoms) plus a standalone cross-warp mbarrier handshake microbenchmark (h=140.33 ns); no in-kernel profiler, no whole-kernel measurement consumed for calibration.

@@ -1,0 +1,3 @@
+variant,fp32_gops_per_sm,fp32_gops_total,ms,iters,threads,ctas_per_sm,blocks,sms,gpu
+ffma,174.600,25840.8,9.3837,200000,256,4,592,148,NVIDIA_B200
+mul,176.567,26131.9,9.2792,200000,256,4,592,148,NVIDIA_B200

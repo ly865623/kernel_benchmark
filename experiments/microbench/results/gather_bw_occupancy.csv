@@ -1,0 +1,6 @@
+ctas_per_sm,num_stages,smem_width,smem_height,dram_read_tbps
+1,4,128,8,3.75
+2,4,128,8,3.76
+4,4,128,8,3.77
+8,4,128,8,3.74
+16,4,128,8,3.64

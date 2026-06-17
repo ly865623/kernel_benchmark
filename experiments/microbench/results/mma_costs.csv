@@ -1,0 +1,3 @@
+stage,mma_M,mma_N,mma_K_instr,format,ablayout,cta_group,cyc_per_mma_tput,latency_cyc,note
+qk_mma,128,128,16,BF16,TS,2,37.106,178,"K=576 -> 36 K-steps/k-iter"
+sv_mma,128,256,16,BF16,TS,2,64.648,210,"N=512=2xN256; K=128 -> 8 K-steps/k-iter"

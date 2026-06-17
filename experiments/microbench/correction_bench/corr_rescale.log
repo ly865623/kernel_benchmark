@@ -1,0 +1,4 @@
+BUILT: /home/liuy/DeepScientist/quests/003/.ds/worktrees/paper-dsa-stagepred-grid-v2/experiments/microbench/correction_bench/corr_rescale_tput.out
+# correction-stage FP32 ALU register-resident throughput (B200 NVIDIA B200), THREADS=256 CTAS_PER_SM=4 blocks=592 ITERS=200000 sms=148
+RESULT,ffma,fp32_gops_total,25840.8,fp32_gops_per_sm,174.600,ms,9.3837
+RESULT,mul,fp32_gops_total,26131.9,fp32_gops_per_sm,176.567,ms,9.2792

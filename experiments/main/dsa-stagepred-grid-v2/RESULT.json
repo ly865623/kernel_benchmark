@@ -1,0 +1,870 @@
+{
+  "schema_version": 1,
+  "result_kind": "main_experiment",
+  "quest_id": "003",
+  "run_id": "dsa-stagepred-grid-v2",
+  "title": "Stage-centric wave-quantized latency model on dense 56-config grid — MAPE 4.92% (10x better than roofline)",
+  "status": "completed",
+  "verdict": "supported",
+  "idea_id": "idea-98be86a0",
+  "branch": "run/dsa-stagepred-offline-v1",
+  "parent_branch": "idea/003-idea-98be86a0",
+  "worktree_root": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/idea-idea-98be86a0",
+  "head_commit": "119dfc43e50e75a9e3587c198a01f0adbd68026d",
+  "baseline_ref": {
+    "baseline_id": "flashmla-dsa-b200",
+    "variant_id": null,
+    "metric_contract_json_rel_path": "baselines/local/flashmla-dsa-b200/json/metric_contract.json",
+    "metric_contract": {
+      "evaluation_protocol": {
+        "scope_id": "flashmla-dsa-sparse-prefill-b200",
+        "device": "NVIDIA B200",
+        "container": "nvcr.io/nvidia/pytorch:26.01-py3-v0",
+        "eval_path": "kk.bench_kineto(flash_mla.flash_mla_sparse_fwd).get_kernel_time('sparse_attn_fwd')",
+        "code_paths": [
+          "experiments/baseline/measure_dsa_prefill.py"
+        ],
+        "num_tests": 30,
+        "passes": 3,
+        "correctness_small_config": true
+      },
+      "contract_id": "flashmla-dsa-b200",
+      "primary_metric_id": "latency_us",
+      "metrics": [
+        {
+          "metric_id": "latency_us",
+          "description": "Median measured execution time of the sparse_attn_fwd CUDA kernel on B200 via kineto, after warmup, median over 3 passes of 30 timed runs. This is the ground truth the analytical micro-kernel model must predict (target whole-kernel MAPE < 10%).",
+          "derivation": "kk.bench_kineto(run, num_tests=30).get_kernel_time('sparse_attn_fwd'); median over 3 passes; microseconds.",
+          "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+          "direction": "minimize",
+          "label": "latency_us",
+          "unit": "us",
+          "required": true,
+          "decimals": null,
+          "chart_group": "default"
+        },
+        {
+          "metric_id": "tflops",
+          "description": "Achieved compute throughput = fwd_flop / latency. Cross-validates measurement (v32 ~1429 TFLOPS aligns with FlashMLA README B200 up-to-1450 TFlops).",
+          "derivation": "lib.count_flop_and_mem_vol(p,t).fwd_flop / latency_s / 1e12",
+          "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+          "direction": "maximize",
+          "label": "Achieved TFLOPS",
+          "unit": "TFLOPS",
+          "required": false,
+          "decimals": null,
+          "chart_group": "default"
+        },
+        {
+          "metric_id": "mem_bw_tbps",
+          "description": "Achieved effective HBM bandwidth = fwd_mem_vol / latency; supports memory-bound classification in the stage-centric model.",
+          "derivation": "lib.count_flop_and_mem_vol(p,t).fwd_mem_vol / latency_s / 1e12",
+          "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+          "direction": "maximize",
+          "label": "Achieved HBM bandwidth (TB/s)",
+          "unit": "TB/s",
+          "required": false,
+          "decimals": null,
+          "chart_group": "default"
+        },
+        {
+          "metric_id": "roofline_rel_err",
+          "description": "Relative error of naive datasheet-peak roofline vs measured latency (12-25% here). Context-only: the bar the interpretable micro-kernel model must beat.",
+          "derivation": "abs(max(fwd_flop/peak_tflops, fwd_mem_vol/peak_bw) - latency)/latency; B200 bf16 2250 TFLOPS, HBM 8 TB/s.",
+          "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+          "direction": "maximize",
+          "label": "Naive roofline relative error",
+          "unit": "fraction",
+          "required": false,
+          "decimals": null,
+          "chart_group": "default"
+        },
+        {
+          "metric_id": "mape_pct",
+          "label": "mape_pct",
+          "direction": "maximize",
+          "unit": null,
+          "decimals": null,
+          "chart_group": "default"
+        },
+        {
+          "metric_id": "mape_pct_anchored",
+          "label": "mape_pct_anchored",
+          "direction": "maximize",
+          "unit": null,
+          "decimals": null,
+          "chart_group": "default"
+        },
+        {
+          "metric_id": "worst_abs_pct_err",
+          "label": "worst_abs_pct_err",
+          "direction": "maximize",
+          "unit": null,
+          "decimals": null,
+          "chart_group": "default"
+        },
+        {
+          "metric_id": "roofline_mape_pct",
+          "label": "roofline_mape_pct",
+          "direction": "maximize",
+          "unit": null,
+          "decimals": null,
+          "chart_group": "default"
+        },
+        {
+          "metric_id": "n_configs",
+          "label": "n_configs",
+          "direction": "maximize",
+          "unit": null,
+          "decimals": null,
+          "chart_group": "default"
+        },
+        {
+          "metric_id": "improvement_vs_roofline_x",
+          "label": "improvement_vs_roofline_x",
+          "direction": "maximize",
+          "unit": null,
+          "decimals": null,
+          "chart_group": "default"
+        }
+      ],
+      "primary_metric": "mape_pct",
+      "primary_direction": "lower_better",
+      "target": "mape_pct < 10 and < roofline_mape_pct",
+      "latency_us_note": "mean measured kernel latency over the 56-config grid (range 19.3-80.9 us); per-config measured+predicted in evidence_paths grid_v2.csv and stage_model_v2_results.json",
+      "grid": "batch_size{1,32,64,74,128,148,256,296} x s_kv{1k..128k}",
+      "fixed": {
+        "h_q": 128,
+        "d_qk": 576,
+        "d_v": 512,
+        "topk": 1024
+      }
+    },
+    "metric_lines": [
+      {
+        "metric_id": "latency_us",
+        "label": "flashmla-dsa-b200",
+        "baseline_id": "flashmla-dsa-b200",
+        "variant_id": null,
+        "selected": true,
+        "value": 1694.51,
+        "raw_value": 1694.51
+      },
+      {
+        "metric_id": "tflops",
+        "label": "flashmla-dsa-b200",
+        "baseline_id": "flashmla-dsa-b200",
+        "variant_id": null,
+        "selected": true,
+        "value": 1378.84,
+        "raw_value": 1378.84
+      },
+      {
+        "metric_id": "mem_bw_tbps",
+        "label": "flashmla-dsa-b200",
+        "baseline_id": "flashmla-dsa-b200",
+        "variant_id": null,
+        "selected": true,
+        "value": 6.38,
+        "raw_value": 6.38
+      },
+      {
+        "metric_id": "roofline_rel_err",
+        "label": "flashmla-dsa-b200",
+        "baseline_id": "flashmla-dsa-b200",
+        "variant_id": null,
+        "selected": true,
+        "value": 0.203,
+        "raw_value": 0.203
+      }
+    ]
+  },
+  "run_context": {
+    "dataset_scope": "flashmla-dsa-sparse-prefill-b200",
+    "config_paths": [],
+    "notes": [
+      "Supersedes v1 (roofline-style max(T_compute,T_io) on 10 narrow configs; no real stage decomposition, no occupancy coverage).",
+      "latency_us in metrics_summary is the grid mean (range 19.3-80.9 us); per-config values are in grid_v2.csv.",
+      "Next: per-firing stage micro-kernel cross-check; possible head64 / cross-platform coefficient swap; then write."
+    ]
+  },
+  "hypothesis": "A latency model composed from the FlashMLA DSA kernel's OWN per-stage profiler timings (stage micro-kernels carved from the original kernel) plus an explicit wave-quantization term predicts whole-kernel latency across a dense batch_size x s_kv grid with MAPE < 10%, far better than naive roofline, with no coefficient fit to the target whole-kernel latencies.",
+  "setup": "B200 (sm100), container ds003-flashmla. Target kernel: sparse_attn_fwd head128 (phase1.cuh), grid=2*s_q, 2-CTA cluster -> 1 query row = 1 two-SM tile; 148 SM -> 74 tiles/wave. Fixed h_q=128, d_qk=576, d_v=512, topk=1024, attn_sink=True. (1) Whole-kernel latency grid: batch_size(=s_q){1,32,64,74,128,148,256,296} x s_kv{1k..128k} = 56 configs, kk.bench_kineto median over 3 passes x 30 tests (clean build). (2) Per-stage decomposition: rebuilt flash_mla with -DFLASHINFER_ENABLE_PROFILER, decoded per-(block,warp,stage) %globaltimer-ns over 17 PrefillProfileEventType stages for 8 configs.",
+  "execution": "experiments/main/sweep_grid_v2.py (grid), stage_extract.py (profiler decode), dsa_stage_model_v2.py (model). Model: num_waves=ceil(s_q/74); T_pred = T_first_wave(fill) + (num_waves-1)*T_marginal(fill); T_first from kernel's own per-stage profiler span de-instrumented by the single bs=1 overhead ratio; T_marginal = T_first - prologue/epilogue (profiler); within-wave fill contention slope from profiler gather-span vs occupancy. No fit to whole-kernel latencies.",
+  "results_summary": "Stage-centric wave-quantized model: MAPE 4.92% (profiler-composed) / 4.93% (single-tile-anchored), worst-config |err| 11.3% over all 56 configs. Naive datasheet roofline on the SAME grid: MAPE 50.28% (worst 99% at bs=1). ~10x better than roofline; PASSES MAPE<10% AND <roofline. Latency is wave-dominated (~20us/wave step: 1w~20, 2w~41, 4w~80us), nearly flat in s_kv at fixed topk (<3%). Per-stage profiler decomposition: kernel is gather+softmax bound (v_gather~=k_gather~=exp dominate; MMA hidden), explaining ~1000 vs 2250 peak TFLOPS and ~5 TB/s effective.",
+  "conclusion": "PASS. Dense grid (user req #1) measured; stage micro-kernels carved strictly from the original kernel via its built-in per-stage profiler (user req #2). The wave-quantization term — absent from v1's roofline-style model — cuts whole-kernel MAPE from 50% (roofline) to 4.9% across 56 configs spanning 1-4 waves, interpretably and without fitting to target latencies.",
+  "metrics_summary": {
+    "latency_us": 40.4,
+    "mape_pct": 4.92,
+    "mape_pct_anchored": 4.93,
+    "worst_abs_pct_err": 11.32,
+    "roofline_mape_pct": 50.28,
+    "n_configs": 56,
+    "improvement_vs_roofline_x": 10.2,
+    "pass_under_10pct": true,
+    "pass_below_roofline": true
+  },
+  "metric_rows": [
+    {
+      "metric_id": "latency_us",
+      "value": 40.4,
+      "numeric_value": 40.4
+    },
+    {
+      "metric_id": "mape_pct",
+      "value": 4.92,
+      "numeric_value": 4.92
+    },
+    {
+      "metric_id": "mape_pct_anchored",
+      "value": 4.93,
+      "numeric_value": 4.93
+    },
+    {
+      "metric_id": "worst_abs_pct_err",
+      "value": 11.32,
+      "numeric_value": 11.32
+    },
+    {
+      "metric_id": "roofline_mape_pct",
+      "value": 50.28,
+      "numeric_value": 50.28
+    },
+    {
+      "metric_id": "n_configs",
+      "value": 56,
+      "numeric_value": 56.0
+    },
+    {
+      "metric_id": "improvement_vs_roofline_x",
+      "value": 10.2,
+      "numeric_value": 10.2
+    },
+    {
+      "metric_id": "pass_under_10pct",
+      "value": true,
+      "numeric_value": null
+    },
+    {
+      "metric_id": "pass_below_roofline",
+      "value": true,
+      "numeric_value": null
+    }
+  ],
+  "metric_contract": {
+    "evaluation_protocol": {
+      "scope_id": "flashmla-dsa-sparse-prefill-b200",
+      "device": "NVIDIA B200",
+      "container": "nvcr.io/nvidia/pytorch:26.01-py3-v0",
+      "eval_path": "kk.bench_kineto(flash_mla.flash_mla_sparse_fwd).get_kernel_time('sparse_attn_fwd')",
+      "code_paths": [
+        "experiments/baseline/measure_dsa_prefill.py"
+      ],
+      "num_tests": 30,
+      "passes": 3,
+      "correctness_small_config": true
+    },
+    "contract_id": "flashmla-dsa-b200",
+    "primary_metric_id": "latency_us",
+    "metrics": [
+      {
+        "metric_id": "latency_us",
+        "description": "Median measured execution time of the sparse_attn_fwd CUDA kernel on B200 via kineto, after warmup, median over 3 passes of 30 timed runs. This is the ground truth the analytical micro-kernel model must predict (target whole-kernel MAPE < 10%).",
+        "derivation": "kk.bench_kineto(run, num_tests=30).get_kernel_time('sparse_attn_fwd'); median over 3 passes; microseconds.",
+        "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+        "direction": "minimize",
+        "label": "latency_us",
+        "unit": "us",
+        "required": true,
+        "decimals": null,
+        "chart_group": "default"
+      },
+      {
+        "metric_id": "tflops",
+        "description": "Achieved compute throughput = fwd_flop / latency. Cross-validates measurement (v32 ~1429 TFLOPS aligns with FlashMLA README B200 up-to-1450 TFlops).",
+        "derivation": "lib.count_flop_and_mem_vol(p,t).fwd_flop / latency_s / 1e12",
+        "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+        "direction": "maximize",
+        "label": "Achieved TFLOPS",
+        "unit": "TFLOPS",
+        "required": false,
+        "decimals": null,
+        "chart_group": "default"
+      },
+      {
+        "metric_id": "mem_bw_tbps",
+        "description": "Achieved effective HBM bandwidth = fwd_mem_vol / latency; supports memory-bound classification in the stage-centric model.",
+        "derivation": "lib.count_flop_and_mem_vol(p,t).fwd_mem_vol / latency_s / 1e12",
+        "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+        "direction": "maximize",
+        "label": "Achieved HBM bandwidth (TB/s)",
+        "unit": "TB/s",
+        "required": false,
+        "decimals": null,
+        "chart_group": "default"
+      },
+      {
+        "metric_id": "roofline_rel_err",
+        "description": "Relative error of naive datasheet-peak roofline vs measured latency (12-25% here). Context-only: the bar the interpretable micro-kernel model must beat.",
+        "derivation": "abs(max(fwd_flop/peak_tflops, fwd_mem_vol/peak_bw) - latency)/latency; B200 bf16 2250 TFLOPS, HBM 8 TB/s.",
+        "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+        "direction": "maximize",
+        "label": "Naive roofline relative error",
+        "unit": "fraction",
+        "required": false,
+        "decimals": null,
+        "chart_group": "default"
+      },
+      {
+        "metric_id": "mape_pct",
+        "label": "mape_pct",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default"
+      },
+      {
+        "metric_id": "mape_pct_anchored",
+        "label": "mape_pct_anchored",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default"
+      },
+      {
+        "metric_id": "worst_abs_pct_err",
+        "label": "worst_abs_pct_err",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default"
+      },
+      {
+        "metric_id": "roofline_mape_pct",
+        "label": "roofline_mape_pct",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default"
+      },
+      {
+        "metric_id": "n_configs",
+        "label": "n_configs",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default"
+      },
+      {
+        "metric_id": "improvement_vs_roofline_x",
+        "label": "improvement_vs_roofline_x",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default"
+      }
+    ],
+    "primary_metric": "mape_pct",
+    "primary_direction": "lower_better",
+    "target": "mape_pct < 10 and < roofline_mape_pct",
+    "latency_us_note": "mean measured kernel latency over the 56-config grid (range 19.3-80.9 us); per-config measured+predicted in evidence_paths grid_v2.csv and stage_model_v2_results.json",
+    "grid": "batch_size{1,32,64,74,128,148,256,296} x s_kv{1k..128k}",
+    "fixed": {
+      "h_q": 128,
+      "d_qk": 576,
+      "d_v": 512,
+      "topk": 1024
+    }
+  },
+  "baseline_comparisons": {
+    "primary_metric_id": "latency_us",
+    "items": [
+      {
+        "metric_id": "latency_us",
+        "label": "latency_us",
+        "direction": "minimize",
+        "unit": "us",
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": 40.4,
+        "baseline_value": 1694.51,
+        "run_numeric": 40.4,
+        "baseline_numeric": 1694.51,
+        "delta": -1654.11,
+        "relative_delta": -0.9761582994493982,
+        "better": true
+      },
+      {
+        "metric_id": "tflops",
+        "label": "Achieved TFLOPS",
+        "direction": "maximize",
+        "unit": "TFLOPS",
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": null,
+        "baseline_value": 1378.84,
+        "run_numeric": null,
+        "baseline_numeric": 1378.84,
+        "delta": null,
+        "relative_delta": null,
+        "better": null
+      },
+      {
+        "metric_id": "mem_bw_tbps",
+        "label": "Achieved HBM bandwidth (TB/s)",
+        "direction": "maximize",
+        "unit": "TB/s",
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": null,
+        "baseline_value": 6.38,
+        "run_numeric": null,
+        "baseline_numeric": 6.38,
+        "delta": null,
+        "relative_delta": null,
+        "better": null
+      },
+      {
+        "metric_id": "roofline_rel_err",
+        "label": "Naive roofline relative error",
+        "direction": "maximize",
+        "unit": "fraction",
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": null,
+        "baseline_value": 0.203,
+        "run_numeric": null,
+        "baseline_numeric": 0.203,
+        "delta": null,
+        "relative_delta": null,
+        "better": null
+      },
+      {
+        "metric_id": "mape_pct",
+        "label": "mape_pct",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": 4.92,
+        "baseline_value": null,
+        "run_numeric": 4.92,
+        "baseline_numeric": null,
+        "delta": null,
+        "relative_delta": null,
+        "better": null
+      },
+      {
+        "metric_id": "mape_pct_anchored",
+        "label": "mape_pct_anchored",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": 4.93,
+        "baseline_value": null,
+        "run_numeric": 4.93,
+        "baseline_numeric": null,
+        "delta": null,
+        "relative_delta": null,
+        "better": null
+      },
+      {
+        "metric_id": "worst_abs_pct_err",
+        "label": "worst_abs_pct_err",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": 11.32,
+        "baseline_value": null,
+        "run_numeric": 11.32,
+        "baseline_numeric": null,
+        "delta": null,
+        "relative_delta": null,
+        "better": null
+      },
+      {
+        "metric_id": "roofline_mape_pct",
+        "label": "roofline_mape_pct",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": 50.28,
+        "baseline_value": null,
+        "run_numeric": 50.28,
+        "baseline_numeric": null,
+        "delta": null,
+        "relative_delta": null,
+        "better": null
+      },
+      {
+        "metric_id": "n_configs",
+        "label": "n_configs",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": 56.0,
+        "baseline_value": null,
+        "run_numeric": 56.0,
+        "baseline_numeric": null,
+        "delta": null,
+        "relative_delta": null,
+        "better": null
+      },
+      {
+        "metric_id": "improvement_vs_roofline_x",
+        "label": "improvement_vs_roofline_x",
+        "direction": "maximize",
+        "unit": null,
+        "decimals": null,
+        "chart_group": "default",
+        "run_value": 10.2,
+        "baseline_value": null,
+        "run_numeric": 10.2,
+        "baseline_numeric": null,
+        "delta": null,
+        "relative_delta": null,
+        "better": null
+      }
+    ],
+    "summary": {
+      "comparable_metric_ids": [
+        "latency_us"
+      ],
+      "improved_metric_ids": [
+        "latency_us"
+      ],
+      "regressed_metric_ids": []
+    }
+  },
+  "progress_eval": {
+    "primary_metric_id": "latency_us",
+    "direction": "minimize",
+    "run_value": 40.4,
+    "baseline_value": 1694.51,
+    "delta_vs_baseline": -1654.11,
+    "relative_delta_vs_baseline": -0.9761582994493982,
+    "previous_best_value": 1609.18,
+    "delta_vs_previous_best": -1568.78,
+    "beats_baseline": true,
+    "improved_over_previous_best": true,
+    "breakthrough": true,
+    "breakthrough_level": "major",
+    "reason": "Primary metric set a new best main-experiment result."
+  },
+  "evaluation_summary": null,
+  "delivery_policy": {
+    "need_research_paper": true,
+    "recommended_next_route": "analysis_or_write",
+    "reason": "Research paper mode is enabled. The run looks promising, so the next route should usually strengthen the evidence and move toward analysis or writing rather than stopping at the algorithm result alone.",
+    "startup_contract": {
+      "schema_version": 4,
+      "workspace_mode": "autonomous",
+      "user_language": "zh",
+      "need_research_paper": true,
+      "research_intensity": "balanced",
+      "decision_policy": "autonomous",
+      "launch_mode": "standard",
+      "standard_profile": "canonical_research_graph",
+      "custom_profile": "freeform",
+      "review_followup_policy": "audit_only",
+      "baseline_execution_policy": "auto",
+      "baseline_source_mode": "auto",
+      "execution_start_mode": "execute_immediately",
+      "baseline_acceptance_target": "comparison_ready",
+      "manuscript_edit_mode": "none",
+      "scope": "baseline_plus_direction",
+      "baseline_mode": "auto",
+      "resource_policy": "balanced",
+      "time_budget_hours": 24,
+      "git_strategy": "semantic_head_plus_controlled_integration",
+      "runtime_constraints": "运行限制： 最多使用4张b200 gpu， 最多跑48小时，可以使用外部API， 可以使用ncu/nsys等工具进行测试microbenchmark数据。",
+      "objectives": [
+        "整kernel性能估计MAPE10%以内。",
+        "希望产出： 基于论文中的方法，现在B200上产生可复现的性能预测数据，并把代码设计和最终结果写成文档。"
+      ],
+      "baseline_urls": [],
+      "paper_urls": [
+        "/home/liuy/code/kernel_lib/research/microbenchmark-drieven_analytical_Performence.pdf"
+      ],
+      "entry_state_summary": "",
+      "review_summary": "",
+      "review_materials": [],
+      "custom_brief": "",
+      "launch_form_source": "manual_form",
+      "launch_form_recorded_at": "2026-06-11T09:11:30.160Z",
+      "launch_setup_quest_id": null,
+      "launch_form": {
+        "title": "Microbenchmark-Driven Analytical Performance Modeling Across Modern GPU Architectures",
+        "quest_id": "003",
+        "goal": "我想基于https://arxiv.org/abs/2605.04178 这篇论文，基于文中的研究方法，针对FlashMla代码仓库的DSA算子进行性能分析，希望可以跨平台服用该分析模型，支持的硬件平台又B200\\thor\\以及其他blackwell-like的硬件。要求必须按照kernel的流水线拆分出micro-kernel， 基于micro-kernel的性能预测target kernel的性能。如果必须要使用数据拟合，则必须做到可解释。",
+        "baseline_id": "",
+        "baseline_variant_id": "",
+        "baseline_source_mode": "auto",
+        "execution_start_mode": "execute_immediately",
+        "baseline_acceptance_target": "comparison_ready",
+        "baseline_urls": "",
+        "paper_urls": "/home/liuy/code/kernel_lib/research/microbenchmark-drieven_analytical_Performence.pdf",
+        "runtime_constraints": "运行限制： 最多使用4张b200 gpu， 最多跑48小时，可以使用外部API， 可以使用ncu/nsys等工具进行测试microbenchmark数据。",
+        "objectives": "整kernel性能估计MAPE10%以内。\t\n希望产出： 基于论文中的方法，现在B200上产生可复现的性能预测数据，并把代码设计和最终结果写成文档。",
+        "need_research_paper": true,
+        "research_intensity": "balanced",
+        "decision_policy": "autonomous",
+        "launch_mode": "standard",
+        "standard_profile": "canonical_research_graph",
+        "custom_profile": "freeform",
+        "review_followup_policy": "audit_only",
+        "baseline_execution_policy": "auto",
+        "manuscript_edit_mode": "none",
+        "entry_state_summary": "",
+        "review_summary": "",
+        "review_materials": "",
+        "custom_brief": "",
+        "user_language": "zh",
+        "scope": "baseline_plus_direction",
+        "baseline_mode": "auto",
+        "resource_policy": "balanced",
+        "time_budget_hours": "24",
+        "git_strategy": "semantic_head_plus_controlled_integration"
+      },
+      "launch_markdown": "Project Bootstrap\n- Project title: Microbenchmark-Driven Analytical Performance Modeling Across Modern GPU Architectures\n- Project id: 003\n- User language: Chinese\n\nPrimary Research Request\n我想基于https://arxiv.org/abs/2605.04178 这篇论文，基于文中的研究方法，针对FlashMla代码仓库的DSA算子进行性能分析，希望可以跨平台服用该分析模型，支持的硬件平台又B200\\thor\\以及其他blackwell-like的硬件。要求必须按照kernel的流水线拆分出micro-kernel， 基于micro-kernel的性能预测target kernel的性能。如果必须要使用数据拟合，则必须做到可解释。\n\nResearch Goals\n- 整kernel性能估计MAPE10%以内。\n- 希望产出： 基于论文中的方法，现在B200上产生可复现的性能预测数据，并把代码设计和最终结果写成文档。\n\nBaseline Context\nNo baseline link has been attached yet. First establish the lightest trustworthy comparator for this quest instead of assuming a full source reproduction is automatically required.\n\nBaseline Source Preference\n- Automatic: choose the lightest trustworthy comparator route from the current baseline sources and local evidence.\n\nExecution Start Mode\n- Execute immediately: if the route is already clear, begin the smallest useful execution step without a separate approval round.\n\nBaseline Acceptance Target\n- Comparison ready: accept the lightest trustworthy comparator that is sufficient for downstream idea selection and experiment comparison.\n\nReference Papers / Repositories / Local Paths\n- /home/liuy/code/kernel_lib/research/microbenchmark-drieven_analytical_Performence.pdf\n\nUser-Provided Materials\n- No extra uploaded material was attached at launch time.\n\nOperational Constraints\n运行限制： 最多使用4张b200 gpu， 最多跑48小时，可以使用外部API， 可以使用ncu/nsys等工具进行测试microbenchmark数据。\n\nResearch Delivery Mode\n- A research paper is required for this project.\n- The default paper-facing route is baseline, idea selection, implementation, measured experiments, only the analysis that the evidence actually needs, then drafting and packaging.\n- Do not stop after obtaining only one improved algorithm or one promising run unless the user explicitly narrows scope.\n- After each `artifact.record_main_experiment(...)`, first interpret the measured result, then decide whether to improve further, run necessary follow-up analysis, or move into writing.\n- The idea stage only creates or revises a candidate direction; the round is not complete until a main experiment result is recorded and routed.\n- Treat later analysis, review, and finalize work as follow-on stages to open when the nearer gate is actually ready, not as boxes that must always be pre-completed before progress counts.\n\nDecision Handling Mode\n- Autonomous decision mode is active.\n- Do not hand ordinary route, branch, cost, baseline-reuse, or experiment-selection decisions back to the user by default.\n- If the main fork is a large-cost choice such as verify/reuse versus full reproduction, one short clarification or one bounded plan is acceptable before heavy execution.\n- Report chosen routes through threaded progress or milestone updates, and keep moving unless you are explicitly requesting final completion approval.\n\nLaunch Mode\n- Standard launch mode is active.\n- Standard profile: canonical research workflow.\n- Start from the canonical research graph unless durable state later proves that a non-standard entry path is better.\n\nResearch Contract\n- Launch mode: Standard mode: start from the ordinary canonical research loop and let the default stage graph drive the first round.\n- Standard entry type: Canonical research workflow: follow the ordinary research graph from baseline and idea selection through experiment, analysis, and paper work when justified.\n- Research intensity: Balanced: secure a trustworthy baseline and probe one justified direction without overcommitting.\n- Decision policy: Autonomous: decide ordinary route choices yourself, keep the user informed through threaded updates, and do not hand routine decisions back to the user.\n- Research paper required: Yes\n- Scope: Baseline + direction: secure the baseline, then test one promising improvement direction.\n- Baseline policy: Stop if insufficient: pause the project instead of faking a baseline when evidence is missing.\n- Baseline source preference: Automatic: choose the lightest trustworthy comparator route from the current baseline sources and local evidence.\n- Execution start mode: Execute immediately: if the route is already clear, begin the smallest useful execution step without a separate approval round.\n- Baseline acceptance target: Comparison ready: accept the lightest trustworthy comparator that is sufficient for downstream idea selection and experiment comparison.\n- Review follow-up policy: Not applicable outside the Review custom task type.\n- Baseline execution policy: Standard baseline handling from the ordinary research loop.\n- Manuscript edit mode: No manuscript-facing custom edit contract requested.\n- Resource policy: Balanced: keep progress steady while still controlling cost and risk.\n- Git strategy: Semantic head + controlled integration: keep a cleaner main line and merge only reviewed branches.\n- Time budget per research round: 24 hour(s)\n\nDefault Working Rules\n- Keep all durable files inside the project root.\n- Prefer reusing existing baseline artifacts before rebuilding them from scratch.\n- Baseline source mode is automatic: choose the lightest trustworthy comparator route from the currently provided baseline sources and local evidence.\n- Execution start mode is execute-immediately: if the route is already concrete, begin with the smallest useful validating action rather than pausing for a separate approval round.\n- Baseline acceptance target is comparison-ready: once the comparator is trustworthy enough to unlock the next scientific step, move forward instead of polishing the baseline indefinitely.\n- Standard launch mode is active here: use the canonical research graph unless later durable evidence justifies a different entry path.\n- Emit explicit milestone updates after each meaningful step.\n- Every consequential decision should include reasons, evidence, and the next recommended action.\n- If the startup contract already fixes the delivery mode and baseline policy, follow it without asking the user again unless cost, safety, or scope changes materially.\n- If manuscript edits are required, make the section-level deltas explicit and keep the replacement wording copy-ready.\n- Autonomous mode is the default contract here: decide the route yourself and continue unless you are requesting explicit completion approval or the cost fork genuinely deserves one short clarification.",
+      "project_display": {
+        "template": "experiment",
+        "accent_color": "sage"
+      }
+    }
+  },
+  "startup_contract": {
+    "schema_version": 4,
+    "workspace_mode": "autonomous",
+    "user_language": "zh",
+    "need_research_paper": true,
+    "research_intensity": "balanced",
+    "decision_policy": "autonomous",
+    "launch_mode": "standard",
+    "standard_profile": "canonical_research_graph",
+    "custom_profile": "freeform",
+    "review_followup_policy": "audit_only",
+    "baseline_execution_policy": "auto",
+    "baseline_source_mode": "auto",
+    "execution_start_mode": "execute_immediately",
+    "baseline_acceptance_target": "comparison_ready",
+    "manuscript_edit_mode": "none",
+    "scope": "baseline_plus_direction",
+    "baseline_mode": "auto",
+    "resource_policy": "balanced",
+    "time_budget_hours": 24,
+    "git_strategy": "semantic_head_plus_controlled_integration",
+    "runtime_constraints": "运行限制： 最多使用4张b200 gpu， 最多跑48小时，可以使用外部API， 可以使用ncu/nsys等工具进行测试microbenchmark数据。",
+    "objectives": [
+      "整kernel性能估计MAPE10%以内。",
+      "希望产出： 基于论文中的方法，现在B200上产生可复现的性能预测数据，并把代码设计和最终结果写成文档。"
+    ],
+    "baseline_urls": [],
+    "paper_urls": [
+      "/home/liuy/code/kernel_lib/research/microbenchmark-drieven_analytical_Performence.pdf"
+    ],
+    "entry_state_summary": "",
+    "review_summary": "",
+    "review_materials": [],
+    "custom_brief": "",
+    "launch_form_source": "manual_form",
+    "launch_form_recorded_at": "2026-06-11T09:11:30.160Z",
+    "launch_setup_quest_id": null,
+    "launch_form": {
+      "title": "Microbenchmark-Driven Analytical Performance Modeling Across Modern GPU Architectures",
+      "quest_id": "003",
+      "goal": "我想基于https://arxiv.org/abs/2605.04178 这篇论文，基于文中的研究方法，针对FlashMla代码仓库的DSA算子进行性能分析，希望可以跨平台服用该分析模型，支持的硬件平台又B200\\thor\\以及其他blackwell-like的硬件。要求必须按照kernel的流水线拆分出micro-kernel， 基于micro-kernel的性能预测target kernel的性能。如果必须要使用数据拟合，则必须做到可解释。",
+      "baseline_id": "",
+      "baseline_variant_id": "",
+      "baseline_source_mode": "auto",
+      "execution_start_mode": "execute_immediately",
+      "baseline_acceptance_target": "comparison_ready",
+      "baseline_urls": "",
+      "paper_urls": "/home/liuy/code/kernel_lib/research/microbenchmark-drieven_analytical_Performence.pdf",
+      "runtime_constraints": "运行限制： 最多使用4张b200 gpu， 最多跑48小时，可以使用外部API， 可以使用ncu/nsys等工具进行测试microbenchmark数据。",
+      "objectives": "整kernel性能估计MAPE10%以内。\t\n希望产出： 基于论文中的方法，现在B200上产生可复现的性能预测数据，并把代码设计和最终结果写成文档。",
+      "need_research_paper": true,
+      "research_intensity": "balanced",
+      "decision_policy": "autonomous",
+      "launch_mode": "standard",
+      "standard_profile": "canonical_research_graph",
+      "custom_profile": "freeform",
+      "review_followup_policy": "audit_only",
+      "baseline_execution_policy": "auto",
+      "manuscript_edit_mode": "none",
+      "entry_state_summary": "",
+      "review_summary": "",
+      "review_materials": "",
+      "custom_brief": "",
+      "user_language": "zh",
+      "scope": "baseline_plus_direction",
+      "baseline_mode": "auto",
+      "resource_policy": "balanced",
+      "time_budget_hours": "24",
+      "git_strategy": "semantic_head_plus_controlled_integration"
+    },
+    "launch_markdown": "Project Bootstrap\n- Project title: Microbenchmark-Driven Analytical Performance Modeling Across Modern GPU Architectures\n- Project id: 003\n- User language: Chinese\n\nPrimary Research Request\n我想基于https://arxiv.org/abs/2605.04178 这篇论文，基于文中的研究方法，针对FlashMla代码仓库的DSA算子进行性能分析，希望可以跨平台服用该分析模型，支持的硬件平台又B200\\thor\\以及其他blackwell-like的硬件。要求必须按照kernel的流水线拆分出micro-kernel， 基于micro-kernel的性能预测target kernel的性能。如果必须要使用数据拟合，则必须做到可解释。\n\nResearch Goals\n- 整kernel性能估计MAPE10%以内。\n- 希望产出： 基于论文中的方法，现在B200上产生可复现的性能预测数据，并把代码设计和最终结果写成文档。\n\nBaseline Context\nNo baseline link has been attached yet. First establish the lightest trustworthy comparator for this quest instead of assuming a full source reproduction is automatically required.\n\nBaseline Source Preference\n- Automatic: choose the lightest trustworthy comparator route from the current baseline sources and local evidence.\n\nExecution Start Mode\n- Execute immediately: if the route is already clear, begin the smallest useful execution step without a separate approval round.\n\nBaseline Acceptance Target\n- Comparison ready: accept the lightest trustworthy comparator that is sufficient for downstream idea selection and experiment comparison.\n\nReference Papers / Repositories / Local Paths\n- /home/liuy/code/kernel_lib/research/microbenchmark-drieven_analytical_Performence.pdf\n\nUser-Provided Materials\n- No extra uploaded material was attached at launch time.\n\nOperational Constraints\n运行限制： 最多使用4张b200 gpu， 最多跑48小时，可以使用外部API， 可以使用ncu/nsys等工具进行测试microbenchmark数据。\n\nResearch Delivery Mode\n- A research paper is required for this project.\n- The default paper-facing route is baseline, idea selection, implementation, measured experiments, only the analysis that the evidence actually needs, then drafting and packaging.\n- Do not stop after obtaining only one improved algorithm or one promising run unless the user explicitly narrows scope.\n- After each `artifact.record_main_experiment(...)`, first interpret the measured result, then decide whether to improve further, run necessary follow-up analysis, or move into writing.\n- The idea stage only creates or revises a candidate direction; the round is not complete until a main experiment result is recorded and routed.\n- Treat later analysis, review, and finalize work as follow-on stages to open when the nearer gate is actually ready, not as boxes that must always be pre-completed before progress counts.\n\nDecision Handling Mode\n- Autonomous decision mode is active.\n- Do not hand ordinary route, branch, cost, baseline-reuse, or experiment-selection decisions back to the user by default.\n- If the main fork is a large-cost choice such as verify/reuse versus full reproduction, one short clarification or one bounded plan is acceptable before heavy execution.\n- Report chosen routes through threaded progress or milestone updates, and keep moving unless you are explicitly requesting final completion approval.\n\nLaunch Mode\n- Standard launch mode is active.\n- Standard profile: canonical research workflow.\n- Start from the canonical research graph unless durable state later proves that a non-standard entry path is better.\n\nResearch Contract\n- Launch mode: Standard mode: start from the ordinary canonical research loop and let the default stage graph drive the first round.\n- Standard entry type: Canonical research workflow: follow the ordinary research graph from baseline and idea selection through experiment, analysis, and paper work when justified.\n- Research intensity: Balanced: secure a trustworthy baseline and probe one justified direction without overcommitting.\n- Decision policy: Autonomous: decide ordinary route choices yourself, keep the user informed through threaded updates, and do not hand routine decisions back to the user.\n- Research paper required: Yes\n- Scope: Baseline + direction: secure the baseline, then test one promising improvement direction.\n- Baseline policy: Stop if insufficient: pause the project instead of faking a baseline when evidence is missing.\n- Baseline source preference: Automatic: choose the lightest trustworthy comparator route from the current baseline sources and local evidence.\n- Execution start mode: Execute immediately: if the route is already clear, begin the smallest useful execution step without a separate approval round.\n- Baseline acceptance target: Comparison ready: accept the lightest trustworthy comparator that is sufficient for downstream idea selection and experiment comparison.\n- Review follow-up policy: Not applicable outside the Review custom task type.\n- Baseline execution policy: Standard baseline handling from the ordinary research loop.\n- Manuscript edit mode: No manuscript-facing custom edit contract requested.\n- Resource policy: Balanced: keep progress steady while still controlling cost and risk.\n- Git strategy: Semantic head + controlled integration: keep a cleaner main line and merge only reviewed branches.\n- Time budget per research round: 24 hour(s)\n\nDefault Working Rules\n- Keep all durable files inside the project root.\n- Prefer reusing existing baseline artifacts before rebuilding them from scratch.\n- Baseline source mode is automatic: choose the lightest trustworthy comparator route from the currently provided baseline sources and local evidence.\n- Execution start mode is execute-immediately: if the route is already concrete, begin with the smallest useful validating action rather than pausing for a separate approval round.\n- Baseline acceptance target is comparison-ready: once the comparator is trustworthy enough to unlock the next scientific step, move forward instead of polishing the baseline indefinitely.\n- Standard launch mode is active here: use the canonical research graph unless later durable evidence justifies a different entry path.\n- Emit explicit milestone updates after each meaningful step.\n- Every consequential decision should include reasons, evidence, and the next recommended action.\n- If the startup contract already fixes the delivery mode and baseline policy, follow it without asking the user again unless cost, safety, or scope changes materially.\n- If manuscript edits are required, make the section-level deltas explicit and keep the replacement wording copy-ready.\n- Autonomous mode is the default contract here: decide the route yourself and continue unless you are requesting explicit completion approval or the cost fork genuinely deserves one short clarification.",
+    "project_display": {
+      "template": "experiment",
+      "accent_color": "sage"
+    }
+  },
+  "evidence_paths": [
+    "experiments/main/grid_v2/grid_v2.csv",
+    "experiments/main/grid_v2/json/grid_v2.json",
+    "experiments/main/stages/json/stage_timings.json",
+    "experiments/main/stage_model_v2_results.json",
+    "experiments/main/sweep_grid_v2.py",
+    "experiments/main/stage_extract.py",
+    "experiments/main/dsa_stage_model_v2.py"
+  ],
+  "files_changed": [],
+  "run_md_path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/idea-idea-98be86a0/experiments/main/dsa-stagepred-grid-v2/RUN.md",
+  "metric_validation": {
+    "baseline_metric_ids": [
+      "latency_us"
+    ],
+    "baseline_metric_details": [
+      {
+        "metric_id": "latency_us",
+        "description": "Median measured execution time of the sparse_attn_fwd CUDA kernel on B200 via kineto, after warmup, median over 3 passes of 30 timed runs. This is the ground truth the analytical micro-kernel model must predict (target whole-kernel MAPE < 10%).",
+        "derivation": "kk.bench_kineto(run, num_tests=30).get_kernel_time('sparse_attn_fwd'); median over 3 passes; microseconds.",
+        "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+        "direction": "minimize",
+        "label": "Measured kernel latency (us)",
+        "unit": "us",
+        "required": true,
+        "decimals": null,
+        "chart_group": "default",
+        "origin_path": null,
+        "baseline_value": 1694.51
+      },
+      {
+        "metric_id": "tflops",
+        "description": "Achieved compute throughput = fwd_flop / latency. Cross-validates measurement (v32 ~1429 TFLOPS aligns with FlashMLA README B200 up-to-1450 TFlops).",
+        "derivation": "lib.count_flop_and_mem_vol(p,t).fwd_flop / latency_s / 1e12",
+        "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+        "direction": "maximize",
+        "label": "Achieved TFLOPS",
+        "unit": "TFLOPS",
+        "required": false,
+        "decimals": null,
+        "chart_group": "default",
+        "origin_path": null,
+        "baseline_value": 1378.84
+      },
+      {
+        "metric_id": "mem_bw_tbps",
+        "description": "Achieved effective HBM bandwidth = fwd_mem_vol / latency; supports memory-bound classification in the stage-centric model.",
+        "derivation": "lib.count_flop_and_mem_vol(p,t).fwd_mem_vol / latency_s / 1e12",
+        "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+        "direction": "maximize",
+        "label": "Achieved HBM bandwidth (TB/s)",
+        "unit": "TB/s",
+        "required": false,
+        "decimals": null,
+        "chart_group": "default",
+        "origin_path": null,
+        "baseline_value": 6.38
+      },
+      {
+        "metric_id": "roofline_rel_err",
+        "description": "Relative error of naive datasheet-peak roofline vs measured latency (12-25% here). Context-only: the bar the interpretable micro-kernel model must beat.",
+        "derivation": "abs(max(fwd_flop/peak_tflops, fwd_mem_vol/peak_bw) - latency)/latency; B200 bf16 2250 TFLOPS, HBM 8 TB/s.",
+        "source_ref": "baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json",
+        "direction": "maximize",
+        "label": "Naive roofline relative error",
+        "unit": "fraction",
+        "required": false,
+        "decimals": null,
+        "chart_group": "default",
+        "origin_path": null,
+        "baseline_value": 0.203
+      }
+    ],
+    "extra_metric_ids": [
+      "mape_pct",
+      "mape_pct_anchored",
+      "worst_abs_pct_err",
+      "roofline_mape_pct",
+      "n_configs",
+      "improvement_vs_roofline_x"
+    ]
+  },
+  "connector_metric_charts": [
+    {
+      "metric_id": "latency_us",
+      "label": "Latency US",
+      "path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/idea-idea-98be86a0/experiments/main/dsa-stagepred-grid-v2/connector-charts/latency-us-timeline.png",
+      "baseline_value": 1694.51,
+      "latest_value": 40.4,
+      "point_count": 3,
+      "direction": "minimize",
+      "style": "branded"
+    },
+    {
+      "metric_id": "roofline_mape_pct",
+      "label": "Roofline Mape PCT",
+      "path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/idea-idea-98be86a0/experiments/main/dsa-stagepred-grid-v2/connector-charts/roofline-mape-pct-timeline.png",
+      "baseline_value": null,
+      "latest_value": 50.28,
+      "point_count": 2,
+      "direction": "maximize",
+      "style": "branded"
+    },
+    {
+      "metric_id": "n_configs",
+      "label": "N Configs",
+      "path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/idea-idea-98be86a0/experiments/main/dsa-stagepred-grid-v2/connector-charts/n-configs-timeline.png",
+      "baseline_value": null,
+      "latest_value": 56.0,
+      "point_count": 2,
+      "direction": "maximize",
+      "style": "branded"
+    },
+    {
+      "metric_id": "mape_pct",
+      "label": "Mape PCT",
+      "path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/idea-idea-98be86a0/experiments/main/dsa-stagepred-grid-v2/connector-charts/mape-pct-timeline.png",
+      "baseline_value": null,
+      "latest_value": 4.92,
+      "point_count": 1,
+      "direction": "maximize",
+      "style": "branded"
+    },
+    {
+      "metric_id": "mape_pct_anchored",
+      "label": "Mape PCT Anchored",
+      "path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/idea-idea-98be86a0/experiments/main/dsa-stagepred-grid-v2/connector-charts/mape-pct-anchored-timeline.png",
+      "baseline_value": null,
+      "latest_value": 4.93,
+      "point_count": 1,
+      "direction": "maximize",
+      "style": "branded"
+    },
+    {
+      "metric_id": "worst_abs_pct_err",
+      "label": "Worst ABS PCT ERR",
+      "path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/idea-idea-98be86a0/experiments/main/dsa-stagepred-grid-v2/connector-charts/worst-abs-pct-err-timeline.png",
+      "baseline_value": null,
+      "latest_value": 11.32,
+      "point_count": 1,
+      "direction": "maximize",
+      "style": "branded"
+    },
+    {
+      "metric_id": "improvement_vs_roofline_x",
+      "label": "Improvement VS Roofline X",
+      "path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/idea-idea-98be86a0/experiments/main/dsa-stagepred-grid-v2/connector-charts/improvement-vs-roofline-x-timeline.png",
+      "baseline_value": null,
+      "latest_value": 10.2,
+      "point_count": 1,
+      "direction": "maximize",
+      "style": "branded"
+    }
+  ]
+}

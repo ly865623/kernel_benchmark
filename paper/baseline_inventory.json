@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "canonical_baseline_ref": {
+    "baseline_id": "flashmla-dsa-b200",
+    "variant_id": null,
+    "baseline_path": "/home/liuy/DeepScientist/quests/003/baselines/local/flashmla-dsa-b200",
+    "baseline_root_rel_path": "baselines/local/flashmla-dsa-b200",
+    "metric_contract_json_path": "/home/liuy/DeepScientist/quests/003/baselines/local/flashmla-dsa-b200/json/metric_contract.json",
+    "metric_contract_json_rel_path": "baselines/local/flashmla-dsa-b200/json/metric_contract.json",
+    "source_mode": "local",
+    "confirmed_at": "2026-06-11T10:22:53+00:00",
+    "comment": null
+  },
+  "supplementary_baselines": [],
+  "updated_at": "2026-06-12T11:54:30+00:00"
+}

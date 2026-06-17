@@ -1,0 +1,20 @@
+/usr/local/lib/python3.12/dist-packages/torch/utils/_device.py:109: UserWarning: Using a non-tuple sequence for multidimensional indexing is deprecated and will be changed in pytorch 2.9; use x[tuple(seq)] instead of x[seq]. In pytorch 2.9 this will be interpreted as tensor index, x[torch.tensor(seq)], which will result either in an error or a different result (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/python_variable_indexing.cpp:347.)
+  return func(*args, **kwargs)
+/usr/local/lib/python3.12/dist-packages/torch/profiler/profiler.py:217: UserWarning: Warning: Profiler clears events at the end of each cycle.Only events from the current cycle will be reported.To keep events across cycles, set acc_events=True.
+  _warn_once(
+/usr/local/lib/python3.12/dist-packages/torch/utils/_device.py:109: UserWarning: Using a non-tuple sequence for multidimensional indexing is deprecated and will be changed in pytorch 2.9; use x[tuple(seq)] instead of x[seq]. In pytorch 2.9 this will be interpreted as tensor index, x[torch.tensor(seq)], which will result either in an error or a different result (Triggered internally at /opt/pytorch/pytorch/torch/csrc/autograd/python_variable_indexing.cpp:347.)
+  return func(*args, **kwargs)
+device: NVIDIA B200 (10, 0)
+[correctness] small config (s_q=62,s_kv=512,topk=512,h_q=128,d_qk=576): PASS
+[v32] s_kv=  8192 topk=2048 h_q=128 d_qk=576 ->   1694.5 us   1378.8 TFLOPS   6.38 TB/s  spread=4.01%  roofline_err=20.3%
+[v32] s_kv= 16384 topk=2048 h_q=128 d_qk=576 ->   1705.9 us   1369.6 TFLOPS   6.33 TB/s  spread=0.80%  roofline_err=20.8%
+[v32] s_kv= 32768 topk=2048 h_q=128 d_qk=576 ->   1711.6 us   1365.1 TFLOPS   6.31 TB/s  spread=1.21%  roofline_err=21.1%
+[v32] s_kv= 65536 topk=2048 h_q=128 d_qk=576 ->   1706.3 us   1369.3 TFLOPS   6.33 TB/s  spread=1.00%  roofline_err=20.8%
+[model1_cfg2] s_kv=  8192 topk=1024 h_q=128 d_qk=512 ->    894.0 us   1229.9 TFLOPS   6.01 TB/s  spread=0.04%  roofline_err=24.9%
+[model1_cfg2] s_kv= 32768 topk=1024 h_q=128 d_qk=512 ->    894.0 us   1229.9 TFLOPS   6.01 TB/s  spread=0.03%  roofline_err=24.9%
+[model1_cfg2] s_kv= 65536 topk=1024 h_q=128 d_qk=512 ->    894.1 us   1229.8 TFLOPS   6.00 TB/s  spread=0.02%  roofline_err=24.9%
+[model1_cfg1] s_kv=  8192 topk=512 h_q=64 d_qk=512 ->    381.7 us    720.1 TFLOPS   7.03 TB/s  spread=0.15%  roofline_err=12.1%
+[model1_cfg1] s_kv= 32768 topk=512 h_q=64 d_qk=512 ->    383.9 us    716.1 TFLOPS   6.99 TB/s  spread=0.15%  roofline_err=12.6%
+[model1_cfg1] s_kv= 65536 topk=512 h_q=64 d_qk=512 ->    383.9 us    715.9 TFLOPS   6.99 TB/s  spread=0.14%  roofline_err=12.6%
+WROTE /workspace/quest/baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json rows= 10
+WROTE /workspace/quest/baselines/local/flashmla-dsa-b200/ground_truth_prefill.csv

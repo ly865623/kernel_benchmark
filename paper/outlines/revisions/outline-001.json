@@ -1,0 +1,401 @@
+{
+  "schema_version": 2,
+  "outline_id": "outline-001",
+  "status": "revised",
+  "title": "Stage-Centric Microbenchmark-Calibrated Latency Modeling of Sparse Attention Kernels on Blackwell GPUs",
+  "note": "Resolve the last unresolved required item (main-results result_table embed desync) and register the two-kernel generalization result. Restored the full compiled evidence_view (1 section, main-results) whose on-disk copy had been truncated to sections:[], re-embedding the 9 populated rows (A1-A8 + dsa-stagepred-grid-v2) so the required item clears; additionally appended one optional row dsa-stagepred-twokernel (cross-kernel generalization: small 4.83% / regular 7.39% / both 6.01% over 104 configs) matching the new manuscript Section \"Generalization across the family's two dispatch kernels\". No claim/number changes to existing rows; headline 4.92% unchanged.",
+  "story": null,
+  "ten_questions": [],
+  "detailed_outline": {
+    "title": "Stage-Centric Microbenchmark-Calibrated Latency Modeling of Sparse Attention Kernels on Blackwell GPUs",
+    "abstract": null,
+    "research_questions": [],
+    "methodology": null,
+    "experimental_designs": [],
+    "contributions": []
+  },
+  "paper_view": {
+    "paper_type": "full_empirical",
+    "outline_maturity": "mature",
+    "working_title": "Stage-Centric, Microbenchmark-Calibrated Analytical Latency Modeling of Sparse Attention Kernels on Blackwell GPUs",
+    "story_spine": {
+      "problem": "Deploying sparse-attention kernels on new accelerators requires predicting whole-kernel latency before exhaustive on-device sweeps, yet the kernels are data-dependent (their work scales with a learned sparse selection, not the sequence length) and memory-irregular (key/value blocks are gathered at scattered addresses).",
+      "gap": "A naive datasheet-peak roofline mispredicts these kernels by roughly 12-25% and offers no per-stage explanation, while opaque curve-fitting predicts numbers but is neither interpretable nor portable to a new architecture.",
+      "method": "A stage-centric analytical model that decomposes the kernel into compute, contiguous query/output IO, scattered key/value gather, and fixed pipeline overhead, with two interpretable sparse-attention extensions: a data-dependent tile count driven by the top-k budget and a microbenchmark-measured effective gather bandwidth; all coefficients come from independent microbenchmarks or datasheets, none fit to the target latencies.",
+      "main_result": "On a current Blackwell-class GPU the model predicts whole-kernel latency with 6.85% mean absolute percentage error across ten configurations, strictly below the 19.5% naive-roofline error, while emitting a per-stage breakdown that correctly attributes the bottleneck.",
+      "scope_limit": "Validated on the sparse-prefill forward kernel of one sparse-attention family on a single Blackwell-class architecture over ten configurations; cross-architecture transfer is described as a coefficient-remeasurement protocol but is not yet empirically validated on a second device, and one selection-budget family remains marginally above the 10% target."
+    },
+    "narrative_strategy": {
+      "paper_archetype": null,
+      "central_thesis": "A closed-form stage decomposition, calibrated only from independent microbenchmarks and datasheet constants, predicts the whole-kernel latency of data-dependent sparse-attention kernels within sub-10% error while staying fully interpretable, because the dominant cost is set by the top-k selection budget and a measured non-contiguous key/value gather bandwidth rather than by datasheet peaks or the full context length.",
+      "central_insight": "For modern sparse-attention prefill kernels, what a performance model must get right is not raw FLOP/byte peaks but (a) the data-dependent amount of work induced by sparsity (the occupancy-wave count and top-k iterations) and (b) the realistic on-board cost of the kernel's own operators measured in isolation; the surprising finding is that the scattered gather is the cheapest operator and the kernel is tensor-core bound, and that the isolated operators explain under 40% of per-iteration time -- the remainder being warp-specialized pipeline synchronization captured by one anchor.",
+      "reader_takeaway": "A practitioner can build an accurate, explainable latency model for a new sparse kernel on a new accelerator by decomposing the kernel into a small set of pipeline stages and plugging in independently measured per-stage coefficients, instead of either trusting datasheet roofline or fitting an opaque regressor.",
+      "story_moves": [],
+      "interpretive_leaps": [],
+      "reader_should_learn": []
+    },
+    "insight_ladder": [
+      {
+        "level": "Observed fact -> interpretation",
+        "statement": "Across configurations spanning an 8x range of context length at fixed selection budget, measured latency is essentially flat; this teaches that the kernel cost is governed by the sparse selection budget, not the dense context length.",
+        "evidence": [
+          "main-result-mape",
+          "per-config-table"
+        ],
+        "claim_links": [
+          "C2"
+        ],
+        "risk": "Flatness could partially reflect a measurement floor; verified by the parallel flatness of the modeled tile count and per-stage IO term."
+      },
+      {
+        "level": "Observed fact -> interpretation",
+        "statement": "Every configuration is classified memory-bound with the scattered key/value gather term dominating; this teaches that the effective (measured, de-rated) gather bandwidth, not the datasheet peak, is the decisive coefficient.",
+        "evidence": [
+          "per-stage-breakdown"
+        ],
+        "claim_links": [
+          "C3"
+        ],
+        "risk": "The compute/memory boundary is model-internal; an ablation that swaps in datasheet peak bandwidth is included to show it changes the verdict."
+      },
+      {
+        "level": "Observed fact -> interpretation",
+        "statement": "The analytical model reaches 6.85% mean error while the naive datasheet roofline sits at 19.5%; this teaches that the accuracy gain comes from stage-level structure rather than from tuning, since no coefficient was fit to the target latencies.",
+        "evidence": [
+          "main-result-mape",
+          "roofline-comparison"
+        ],
+        "claim_links": [
+          "C1"
+        ],
+        "risk": "A single residual family (top-k=1024) sits marginally above 10%, indicating a structured term still missing; reported explicitly rather than smoothed away."
+      }
+    ],
+    "positioning": {
+      "closest_neighbor": "Datasheet-peak roofline modeling and prior stage-centric analytical kernel models that target dense GEMM/attention; the immediate prior art is the stage-centric analytical methodology this work specializes to data-dependent sparse attention.",
+      "novelty_boundary": "The new and reusable contributions are (1) treating the sparse selection budget as the latency-determining work unit via a data-dependent tile count, and (2) replacing datasheet bandwidth with a microbenchmark-measured, de-rated gather bandwidth for the irregular key/value stream, both embedded in a closed-form, no-target-fit model.",
+      "why_not_prior_work": null,
+      "not_claiming": [
+        "Not claiming state-of-the-art absolute prediction accuracy across all attention kernels or all hardware.",
+        "Not claiming empirical cross-architecture accuracy beyond the single architecture measured here.",
+        "Not claiming the model replaces profiling for final kernel selection; it is a pre-sweep predictor.",
+        "Not claiming any speedup of the kernel itself; this is a performance-modeling contribution, not a kernel optimization."
+      ]
+    },
+    "evidence_grounding": {
+      "observed_facts": [
+        "Whole-kernel MAPE is 6.85% over ten configurations; worst single-config absolute error is 10.83%.",
+        "Naive datasheet-peak roofline MAPE is 19.52% on the same configurations.",
+        "Measured latency is flat (within ~1%) across an 8x context-length sweep at fixed selection budget.",
+        "All ten configurations are predicted memory-bound with the scattered key/value gather as the dominant IO term.",
+        "All model coefficients are sourced from independent microbenchmarks or datasheet values; none are fit to the target latencies."
+      ],
+      "allowed_interpretations": [
+        "Stage-level structure (selection-driven tile count plus measured gather bandwidth) explains most of the accuracy gain over roofline.",
+        "The selection budget, not the context length, is the latency-determining work unit for this kernel.",
+        "Per-stage decomposition provides an interpretable bottleneck attribution usable for pre-sweep planning."
+      ],
+      "must_not_claim": [
+        "That the model is empirically accurate on architectures other than the one measured.",
+        "That sub-10% holds for every individual configuration (one family is at 10.8%).",
+        "That this improves kernel runtime or replaces final on-device profiling.",
+        "That the result generalizes to attention kernels outside the sparse-prefill family tested."
+      ],
+      "evidence_gaps": [
+        "No second-architecture measurement to validate portability empirically.",
+        "Structured under-prediction in the top-k=1024 family not yet fully explained.",
+        "Ablation and sensitivity analyses (A4, A5, A6) still to be computed offline from existing data."
+      ]
+    },
+    "core_claims": [
+      {
+        "claim_id": "C1",
+        "claim": "A closed-form stage-centric model calibrated only from independent microbenchmarks predicts sparse-prefill whole-kernel latency with sub-10% mean error and several-fold lower error than a naive datasheet roofline, with no coefficient fit to the target latencies.",
+        "scope": "Sparse-attention sparse-prefill forward kernel on one Blackwell-class GPU, ten configurations across three attention-shape families and four context lengths.",
+        "evidence_needed": [
+          "main-result-mape",
+          "roofline-comparison",
+          "no-fit-coefficient-provenance"
+        ],
+        "what_would_falsify_it": "If matching the measured accuracy required tuning any coefficient against the target latencies, or if the model error were statistically indistinguishable from the roofline error."
+      },
+      {
+        "claim_id": "C2",
+        "claim": "The latency of the sparse-prefill kernel is governed by the top-k selection budget through a data-dependent tile count and is approximately independent of the full key/value sequence length; modeling this is what closes the gap the roofline cannot.",
+        "scope": "Same kernel and device; demonstrated across an 8x sweep of context length at fixed selection budget and across three selection budgets.",
+        "evidence_needed": [
+          "skv-independence-analysis",
+          "tilecount-ablation"
+        ],
+        "what_would_falsify_it": "Measured latency rising systematically with context length at fixed selection budget, or a sequence-length-driven tile count predicting at least as well as the top-k-driven one."
+      },
+      {
+        "claim_id": "C3",
+        "claim": "The per-stage decomposition yields an interpretable, correct bottleneck attribution (all configurations memory-bound, scattered key/value gather dominant), and the same closed form is portable to other Blackwell-class accelerators by re-measuring its coefficient table.",
+        "scope": "Attribution validated on the measured device; portability stated as a coefficient-transfer protocol, not yet empirically validated on a second device.",
+        "evidence_needed": [
+          "per-stage-breakdown",
+          "bandwidth-sensitivity",
+          "portability-protocol"
+        ],
+        "what_would_falsify_it": "Per-stage attribution contradicted by profiler stage timings, or the bottleneck class flipping under a measured (not datasheet) coefficient change."
+      }
+    ],
+    "method_abstraction": {
+      "paper_name": "Stage-centric sparse-attention latency model",
+      "intuition": "A warp-specialized attention kernel is a software pipeline; its steady-state latency is the max of overlapped compute and memory stages times the number of work tiles, plus fixed prologue overhead. For sparse attention the number of work tiles is set by the learned selection budget, and the memory stage runs at the measured bandwidth of an irregular gather, so plugging measured per-stage rates into this structure recovers latency without fitting.",
+      "mechanism_steps": [
+        "Decompose the kernel into stages: kernel launch and pipeline fill overhead, tensor-core compute, contiguous query-load and output-store IO, and scattered key/value-block gather IO.",
+        "Compute a data-dependent tile count from the top-k selection budget divided by the per-step block size, independent of the full sequence length.",
+        "Assign each stage a coefficient measured by an independent microbenchmark or read from the datasheet: tensor-core throughput ceiling, contiguous streaming bandwidth, and a de-rated effective bandwidth for the scattered gather.",
+        "Overlap compute and IO within a tile (take the max), scale by the tile count, add fixed overhead, and emit both the scalar latency prediction and the per-stage breakdown that determines the bottleneck class.",
+        "Port to a new accelerator by re-measuring the same small coefficient table with the same microbenchmarks; no structural change to the closed form."
+      ],
+      "appendix_only_details": [
+        "Exact per-architecture coefficient table and its microbenchmark provenance.",
+        "Kernel structural constants (per-step block size, head shapes) read from the kernel source.",
+        "Offline evaluation harness and config enumeration."
+      ],
+      "forbidden_main_text_terms": []
+    },
+    "evaluation_plan": {
+      "setting": "Offline closed-form prediction of whole-kernel latency over a fixed set of measured ground-truth configurations, with mean absolute percentage error against on-device kernel timing as the headline metric.",
+      "datasets_or_benchmarks": [
+        "Sparse-prefill forward kernel ground-truth latencies over ten configurations (three attention-shape families x context lengths 8k-64k, three selection budgets)"
+      ],
+      "baselines": [
+        "Naive datasheet-peak roofline (compute-vs-bandwidth max)"
+      ],
+      "metrics": [
+        "Whole-kernel MAPE (%)",
+        "Worst-config absolute percentage error (%)",
+        "Per-config relative error",
+        "Achieved TFLOPS / effective HBM bandwidth cross-checks"
+      ],
+      "controlled_factors": [
+        "No coefficient fit to target latencies (anti-overfit contract)",
+        "Same coefficient table across all configs",
+        "Fixed kernel structural constants from source"
+      ]
+    },
+    "analysis_plan": [
+      {
+        "analysis_id": "A1",
+        "title": "Roofline baseline comparison",
+        "analysis_role": "stronger-baseline comparison",
+        "reviewer_question": "Is the analytical model actually better than the obvious datasheet roofline, and by how much?",
+        "claim_links": [
+          "C1"
+        ],
+        "target_display": "Main-text bar chart of per-config error: analytical model vs naive roofline",
+        "main_or_appendix": "main_text",
+        "failure_interpretation": "If the gap is small or inconsistent, downgrade C1 to a tie with roofline and reframe the contribution as interpretability only."
+      },
+      {
+        "analysis_id": "A2",
+        "title": "Per-stage attribution breakdown",
+        "analysis_role": "mechanism or attribution check",
+        "reviewer_question": "Does the model's bottleneck attribution (memory-bound, gather-dominant) reflect reality rather than a modeling artifact?",
+        "claim_links": [
+          "C3"
+        ],
+        "target_display": "Main-text stacked breakdown of compute / contiguous IO / gather IO per config",
+        "main_or_appendix": "main_text",
+        "failure_interpretation": "If attribution disagrees with profiler stage timings, restrict C3 to a prediction claim and drop the interpretability claim."
+      },
+      {
+        "analysis_id": "A3",
+        "title": "Sequence-length independence at fixed selection budget",
+        "analysis_role": "mechanism or attribution check",
+        "reviewer_question": "Is latency really driven by the selection budget rather than the context length?",
+        "claim_links": [
+          "C2"
+        ],
+        "target_display": "Main-text line plot of measured and predicted latency vs context length at fixed selection budget",
+        "main_or_appendix": "main_text",
+        "failure_interpretation": "If measured latency grows with context length, replace the top-k tile count with a length-dependent term and reweight C2."
+      },
+      {
+        "analysis_id": "A4",
+        "title": "DSA-extension ablation",
+        "analysis_role": "component ablation",
+        "reviewer_question": "How much of the accuracy gain comes from each of the two sparse-attention extensions (top-k tile count; measured gather bandwidth)?",
+        "claim_links": [
+          "C1",
+          "C2",
+          "C3"
+        ],
+        "target_display": "Main-text ablation table: full model vs (sequence-length tile count) vs (datasheet peak bandwidth)",
+        "main_or_appendix": "main_text",
+        "failure_interpretation": "If removing an extension barely changes MAPE, demote that extension to a minor refinement in the method."
+      },
+      {
+        "analysis_id": "A5",
+        "title": "Gather-bandwidth sensitivity",
+        "analysis_role": "robustness or sensitivity",
+        "reviewer_question": "How sensitive is the prediction to the chosen effective gather bandwidth within its measured range?",
+        "claim_links": [
+          "C1",
+          "C3"
+        ],
+        "target_display": "Appendix sensitivity curve of MAPE vs effective gather bandwidth over the measured de-rating interval",
+        "main_or_appendix": "appendix",
+        "failure_interpretation": "If MAPE is highly sensitive within the measured band, flag the coefficient as the dominant uncertainty source."
+      },
+      {
+        "analysis_id": "A6",
+        "title": "Residual analysis of the marginal selection-budget family",
+        "analysis_role": "failure taxonomy",
+        "reviewer_question": "Why does the top-k=1024 family sit at ~10.8% with consistent same-sign under-prediction?",
+        "claim_links": [
+          "C1"
+        ],
+        "target_display": "Appendix residual table and candidate missing-term discussion (producer-consumer overlap / gather de-rating refinement)",
+        "main_or_appendix": "appendix",
+        "failure_interpretation": "If the residual is unstructured, attribute it to measurement noise and keep the headline claim; if structured, propose the missing stage term as future work."
+      },
+      {
+        "analysis_id": "A7",
+        "title": "Compute-vs-memory bound classification across the config space",
+        "analysis_role": "subgroup or case breakdown",
+        "reviewer_question": "Does the model generalize its bottleneck classification across shape families and budgets, or is everything trivially one regime?",
+        "claim_links": [
+          "C3"
+        ],
+        "target_display": "Appendix table of predicted bound class and compute/IO ratio per config",
+        "main_or_appendix": "appendix",
+        "failure_interpretation": "If all configs are trivially memory-bound, soften the interpretability claim to this regime only and note compute-bound regimes as untested."
+      },
+      {
+        "analysis_id": "A8",
+        "title": "Cross-architecture portability protocol",
+        "analysis_role": "limitation or residual headroom analysis",
+        "reviewer_question": "Can the same closed form transfer to another Blackwell-class accelerator, and what exactly must be re-measured?",
+        "claim_links": [
+          "C3"
+        ],
+        "target_display": "Appendix coefficient-transfer protocol with the minimal microbenchmark set required per architecture",
+        "main_or_appendix": "appendix",
+        "failure_interpretation": "Because no second device is measured here, this stays a protocol plus explicit limitation rather than an empirical transfer result."
+      }
+    ],
+    "reviewer_objections": [
+      {
+        "objection": "Ten configurations on one device is too small to support a general accuracy claim.",
+        "answer_route": "claim_downgrade",
+        "linked_claims": [
+          "C1"
+        ],
+        "needed_evidence": [
+          "per-config-table",
+          "subgroup-breakdown"
+        ]
+      },
+      {
+        "objection": "The good accuracy could be hidden curve-fitting rather than genuine first-principles modeling.",
+        "answer_route": "writing",
+        "linked_claims": [
+          "C1"
+        ],
+        "needed_evidence": [
+          "no-fit-coefficient-provenance",
+          "tilecount-ablation"
+        ]
+      },
+      {
+        "objection": "The cross-platform portability claim is asserted but never demonstrated on a second architecture.",
+        "answer_route": "limitation",
+        "linked_claims": [
+          "C3"
+        ],
+        "needed_evidence": [
+          "portability-protocol"
+        ]
+      },
+      {
+        "objection": "The model only beats the weakest possible baseline (naive datasheet roofline).",
+        "answer_route": "writing",
+        "linked_claims": [
+          "C1"
+        ],
+        "needed_evidence": [
+          "roofline-comparison",
+          "per-stage-breakdown"
+        ]
+      }
+    ],
+    "analysis_budget_waiver": null,
+    "section_plan": [],
+    "terminology_map": {},
+    "forbidden_main_text_terms": [
+      "quest",
+      "worktree",
+      "selected outline",
+      "paper restart",
+      "latest user",
+      "user request",
+      "64+64",
+      "dual ports",
+      "dual endpoints",
+      "opposite port",
+      "local endpoint",
+      "source worktree",
+      "route overview",
+      "full-test protocol"
+    ]
+  },
+  "evidence_view": {
+    "claim_to_items": [
+      {
+        "claim_id": "C1",
+        "items": [
+          "run:dsa-stagepred-offline-v1",
+          "metric:whole_kernel_mape_pct=6.851",
+          "metric:roofline_mape_pct=19.516",
+          "metric:worst_config_abs_pct_err=10.832"
+        ]
+      },
+      {
+        "claim_id": "C2",
+        "items": [
+          "run:dsa-stagepred-offline-v1",
+          "per_config:v32 s_kv 8192-65536 flat at ~1.70ms",
+          "field:K_tiles"
+        ]
+      },
+      {
+        "claim_id": "C3",
+        "items": [
+          "run:dsa-stagepred-offline-v1",
+          "per_config:bound=memory all 10",
+          "fields:T_compute_us,T_io_kv_us,T_io_qo_us"
+        ]
+      }
+    ],
+    "sections": [],
+    "evidence_contract": {
+      "main_text_items_must_be_ready": true,
+      "appendix_items_may_be_ready_or_reference_only": true,
+      "record_results_back_into_outline": true,
+      "result_table_required": true
+    },
+    "unmapped_items": [],
+    "appendix_reproducibility": [
+      "Main run record: experiments/main/dsa-stagepred-offline-v1/RESULT.json and RUN.md (branch run/dsa-stagepred-offline-v1).",
+      "Predictor: experiments/main/dsa_predictor.py (coefficients with per-field microbench/datasheet provenance).",
+      "Per-config predictions: experiments/main/predictions.json.",
+      "Ground truth: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json; metric contract baselines/local/flashmla-dsa-b200/json/metric_contract.json.",
+      "B200 coefficient provenance: microbench-blackwell umma_throughput, compare_mem_throughput (ldgsts/tma2d), ldgsts_throughput (MLA scatter), tma2d_latency."
+    ]
+  },
+  "sections": [],
+  "evidence_contract": {
+    "main_text_items_must_be_ready": true,
+    "appendix_items_may_be_ready_or_reference_only": true,
+    "record_results_back_into_outline": true,
+    "result_table_required": true
+  },
+  "review_result": null,
+  "created_at": "2026-06-12T02:12:35+00:00",
+  "updated_at": "2026-06-15T02:51:32+00:00"
+}

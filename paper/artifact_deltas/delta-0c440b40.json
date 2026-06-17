@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "delta_id": "delta-0c440b40",
+  "delta_kind": "paper_outline_revised",
+  "tool_name": "submit_paper_outline",
+  "created_at": "2026-06-15T02:51:33+00:00",
+  "quest_root": "/home/liuy/DeepScientist/quests/003",
+  "workspace_root": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/paper-dsa-stagepred-grid-v2",
+  "paths": [
+    {
+      "label": "selected_outline_json",
+      "path": "paper/selected_outline.json",
+      "absolute_path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/paper-dsa-stagepred-grid-v2/paper/selected_outline.json",
+      "exists": true,
+      "size_bytes": 69631,
+      "mtime_ns": 1781491892222117779
+    },
+    {
+      "label": "outline_manifest_json",
+      "path": "paper/outline/manifest.json",
+      "absolute_path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/paper-dsa-stagepred-grid-v2/paper/outline/manifest.json",
+      "exists": true,
+      "size_bytes": 24530,
+      "mtime_ns": 1781491892216117782
+    },
+    {
+      "label": "outline_selection_md",
+      "path": "paper/outline_selection.md",
+      "absolute_path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/paper-dsa-stagepred-grid-v2/paper/outline_selection.md",
+      "exists": true,
+      "size_bytes": 1525,
+      "mtime_ns": 1781491892226117776
+    },
+    {
+      "label": "paper_line_state_json",
+      "path": "paper/paper_line_state.json",
+      "absolute_path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/paper-dsa-stagepred-grid-v2/paper/paper_line_state.json",
+      "exists": true,
+      "size_bytes": 1972,
+      "mtime_ns": 1781491892246117765
+    },
+    {
+      "label": "source_outline_json",
+      "path": "paper/outlines/candidates/outline-001.json",
+      "absolute_path": "/home/liuy/DeepScientist/quests/003/paper/outlines/candidates/outline-001.json",
+      "exists": true,
+      "size_bytes": 23681,
+      "mtime_ns": 1781491892226117776
+    },
+    {
+      "label": "revised_outline_json",
+      "path": "paper/outlines/revisions/outline-001.json",
+      "absolute_path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/paper-dsa-stagepred-grid-v2/paper/outlines/revisions/outline-001.json",
+      "exists": true,
+      "size_bytes": 24070,
+      "mtime_ns": 1781491892226117776
+    },
+    {
+      "label": "artifact_json",
+      "path": "artifacts/reports/report-df2f27e5.json",
+      "absolute_path": "/home/liuy/DeepScientist/quests/003/.ds/worktrees/paper-dsa-stagepred-grid-v2/artifacts/reports/report-df2f27e5.json",
+      "exists": true,
+      "size_bytes": 4071,
+      "mtime_ns": 1781491892432117659
+    }
+  ],
+  "metadata": {
+    "mode": "revise",
+    "outline_id": "outline-001",
+    "title": "Stage-Centric Microbenchmark-Calibrated Latency Modeling of Sparse Attention Kernels on Blackwell GPUs",
+    "paper_line_id": "paper-dsa-stagepred-grid-v2-outline-001-dsa-stagepred-grid-v2"
+  }
+}

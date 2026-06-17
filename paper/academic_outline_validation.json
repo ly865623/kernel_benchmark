@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "ok": true,
+  "academic_outline_ready": true,
+  "analysis_plan_ready": true,
+  "outline_path": "/home/liuy/DeepScientist/quests/003/paper/outline/manifest.json",
+  "outline_id": "outline-001",
+  "paper_type": "full_empirical",
+  "outline_maturity": "mature",
+  "central_thesis": "A closed-form stage decomposition, calibrated only from standalone on-board microbenchmarks of the kernel's own operators plus datasheet constants, predicts the whole-kernel latency of data-dependent sparse-attention kernels within sub-10% error while staying fully interpretable, because the cost is set by the discrete occupancy-wave count and the top-k selection budget, and because the dominant per-iteration cost is the kernel's tensor-core matmul together with a warp-specialized pipeline-synchronization residual supplied by a single on-board anchor -- not by datasheet peaks, the full context length, or the scattered gather a sparse kernel is named for.",
+  "central_insight": "For modern sparse-attention prefill kernels, what a performance model must get right is not raw FLOP/byte peaks but (a) the data-dependent amount of work induced by sparsity and (b) the realistic, measured bandwidth of the irregular memory stream; once these two stage-level quantities are modeled, an analytical model beats a naive roofline several-fold without any black-box fitting.",
+  "story_missing": [],
+  "claim_count": 3,
+  "insight_count": 3,
+  "analysis_count": 8,
+  "reviewer_objection_count": 4,
+  "positioning_ready": true,
+  "analysis_budget_waiver": null,
+  "blockers": [],
+  "warnings": [],
+  "language_violations": [],
+  "updated_at": "2026-06-15T16:29:08+00:00"
+}

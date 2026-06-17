@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+# microbench re-run outputs (reference CSVs are kept under results/)
+experiments/microbench/regen/
+*.out
+*.o

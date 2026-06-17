@@ -1,0 +1,7 @@
+# faithful register-resident exp2f (MUFU.EX2 SFU) throughput, B200, THREADS=256, ITERS=200000x4-ILP
+# NOT the memory-bound elementwise proxy (which was HBM-throttled at 240 GOps).
+ctas_per_sm,exp2_gops_total,exp2_gops_per_sm,ms
+1,2503.3,16.914,12.1081
+2,3383.8,22.863,17.9152
+4,3563.4,24.077,34.0245
+8,3671.8,24.809,66.0395

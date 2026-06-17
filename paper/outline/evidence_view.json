@@ -1,0 +1,44 @@
+{
+  "claim_to_items": [
+    {
+      "claim_id": "C1",
+      "items": [
+        "run:dsa-stagepred-offline-v1",
+        "metric:whole_kernel_mape_pct=9.24",
+        "metric:roofline_mape_pct=47.56",
+        "metric:worst_config_abs_pct_err=9.72"
+      ]
+    },
+    {
+      "claim_id": "C2",
+      "items": [
+        "run:dsa-stagepred-offline-v1",
+        "analysis:A3 across-s_kv spread max 3.25% / mean 1.48% over 128x sweep",
+        "field:K_tiles"
+      ]
+    },
+    {
+      "claim_id": "C3",
+      "items": [
+        "run:dsa-stagepred-offline-v1",
+        "analysis:A7 binder=tensor 104/104 (gather 16.2ns vs QK^T matmul 339.9ns)",
+        "fields:T_compute_us,T_io_kv_us,T_io_qo_us"
+      ]
+    }
+  ],
+  "sections": [],
+  "evidence_contract": {
+    "main_text_items_must_be_ready": true,
+    "appendix_items_may_be_ready_or_reference_only": true,
+    "record_results_back_into_outline": true,
+    "result_table_required": true
+  },
+  "unmapped_items": [],
+  "appendix_reproducibility": [
+    "Main run record: experiments/main/dsa-stagepred-offline-v1/RESULT.json and RUN.md (branch run/dsa-stagepred-offline-v1).",
+    "Predictor: experiments/main/dsa_predictor.py (coefficients with per-field microbench/datasheet provenance).",
+    "Per-config predictions: experiments/main/predictions.json.",
+    "Ground truth: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json; metric contract baselines/local/flashmla-dsa-b200/json/metric_contract.json.",
+    "B200 coefficient provenance: microbench-blackwell umma_throughput, compare_mem_throughput (ldgsts/tma2d), ldgsts_throughput (MLA scatter), tma2d_latency."
+  ]
+}

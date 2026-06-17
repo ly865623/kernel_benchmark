@@ -1,0 +1,159 @@
+attached_at: '2026-06-11T10:22:53+00:00'
+source_baseline_id: flashmla-dsa-b200
+source_variant_id: null
+entry:
+  registry_kind: baseline
+  schema_version: 1
+  entry_id: flashmla-dsa-b200
+  baseline_id: flashmla-dsa-b200
+  status: quest_local
+  created_at: '2026-06-11T10:22:53+00:00'
+  updated_at: '2026-06-11T10:22:53+00:00'
+  path: /home/liuy/DeepScientist/quests/003/baselines/local/flashmla-dsa-b200
+  summary: 'Comparison-ready baseline: measured B200 ground-truth latency of FlashMLA
+    DSA sparse-prefill kernel sparse_attn_fwd across 10 representative configs (3
+    shape families, s_kv 8k-64k). Correctness PASS, 3-pass repeatability <1.2% for
+    9/10 configs, TFLOPS cross-validated vs README. Naive-roofline context error 12-25%
+    recorded as the bar the interpretable micro-kernel model must beat. Decode kernel
+    deferred to experiment stage.'
+  baseline_kind: local
+  primary_metric:
+    metric_id: latency_us
+    value: 1694.51
+    direction: minimize
+  metrics_summary:
+    latency_us: 1694.51
+    tflops: 1378.84
+    mem_bw_tbps: 6.38
+    roofline_rel_err: 0.203
+  baseline_variants: []
+  default_variant_id: null
+  metric_contract:
+    evaluation_protocol:
+      scope_id: flashmla-dsa-sparse-prefill-b200
+      device: NVIDIA B200
+      container: nvcr.io/nvidia/pytorch:26.01-py3-v0
+      eval_path: kk.bench_kineto(flash_mla.flash_mla_sparse_fwd).get_kernel_time('sparse_attn_fwd')
+      code_paths:
+      - experiments/baseline/measure_dsa_prefill.py
+      num_tests: 30
+      passes: 3
+      correctness_small_config: true
+    contract_id: flashmla-dsa-b200
+    primary_metric_id: latency_us
+    metrics:
+    - metric_id: latency_us
+      description: Median measured execution time of the sparse_attn_fwd CUDA kernel
+        on B200 via kineto, after warmup, median over 3 passes of 30 timed runs. This
+        is the ground truth the analytical micro-kernel model must predict (target
+        whole-kernel MAPE < 10%).
+      derivation: kk.bench_kineto(run, num_tests=30).get_kernel_time('sparse_attn_fwd');
+        median over 3 passes; microseconds.
+      source_ref: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json
+      direction: minimize
+      label: Measured kernel latency (us)
+      unit: us
+      required: true
+      decimals: null
+      chart_group: default
+    - metric_id: tflops
+      description: Achieved compute throughput = fwd_flop / latency. Cross-validates
+        measurement (v32 ~1429 TFLOPS aligns with FlashMLA README B200 up-to-1450
+        TFlops).
+      derivation: lib.count_flop_and_mem_vol(p,t).fwd_flop / latency_s / 1e12
+      source_ref: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json
+      direction: maximize
+      label: Achieved TFLOPS
+      unit: TFLOPS
+      required: false
+      decimals: null
+      chart_group: default
+    - metric_id: mem_bw_tbps
+      description: Achieved effective HBM bandwidth = fwd_mem_vol / latency; supports
+        memory-bound classification in the stage-centric model.
+      derivation: lib.count_flop_and_mem_vol(p,t).fwd_mem_vol / latency_s / 1e12
+      source_ref: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json
+      direction: maximize
+      label: Achieved HBM bandwidth (TB/s)
+      unit: TB/s
+      required: false
+      decimals: null
+      chart_group: default
+    - metric_id: roofline_rel_err
+      description: 'Relative error of naive datasheet-peak roofline vs measured latency
+        (12-25% here). Context-only: the bar the interpretable micro-kernel model
+        must beat.'
+      derivation: abs(max(fwd_flop/peak_tflops, fwd_mem_vol/peak_bw) - latency)/latency;
+        B200 bf16 2250 TFLOPS, HBM 8 TB/s.
+      source_ref: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json
+      direction: maximize
+      label: Naive roofline relative error
+      unit: fraction
+      required: false
+      decimals: null
+      chart_group: default
+  metric_details:
+  - metric_id: latency_us
+    description: Median measured execution time of the sparse_attn_fwd CUDA kernel
+      on B200 via kineto, after warmup, median over 3 passes of 30 timed runs. This
+      is the ground truth the analytical micro-kernel model must predict (target whole-kernel
+      MAPE < 10%).
+    derivation: kk.bench_kineto(run, num_tests=30).get_kernel_time('sparse_attn_fwd');
+      median over 3 passes; microseconds.
+    source_ref: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json
+    direction: minimize
+    label: Measured kernel latency (us)
+    unit: us
+    required: true
+    decimals: null
+    chart_group: default
+    origin_path: null
+    value: 1694.51
+  - metric_id: tflops
+    description: Achieved compute throughput = fwd_flop / latency. Cross-validates
+      measurement (v32 ~1429 TFLOPS aligns with FlashMLA README B200 up-to-1450 TFlops).
+    derivation: lib.count_flop_and_mem_vol(p,t).fwd_flop / latency_s / 1e12
+    source_ref: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json
+    direction: maximize
+    label: Achieved TFLOPS
+    unit: TFLOPS
+    required: false
+    decimals: null
+    chart_group: default
+    origin_path: null
+    value: 1378.84
+  - metric_id: mem_bw_tbps
+    description: Achieved effective HBM bandwidth = fwd_mem_vol / latency; supports
+      memory-bound classification in the stage-centric model.
+    derivation: lib.count_flop_and_mem_vol(p,t).fwd_mem_vol / latency_s / 1e12
+    source_ref: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json
+    direction: maximize
+    label: Achieved HBM bandwidth (TB/s)
+    unit: TB/s
+    required: false
+    decimals: null
+    chart_group: default
+    origin_path: null
+    value: 6.38
+  - metric_id: roofline_rel_err
+    description: 'Relative error of naive datasheet-peak roofline vs measured latency
+      (12-25% here). Context-only: the bar the interpretable micro-kernel model must
+      beat.'
+    derivation: abs(max(fwd_flop/peak_tflops, fwd_mem_vol/peak_bw) - latency)/latency;
+      B200 bf16 2250 TFLOPS, HBM 8 TB/s.
+    source_ref: baselines/local/flashmla-dsa-b200/json/ground_truth_prefill.json
+    direction: maximize
+    label: Naive roofline relative error
+    unit: fraction
+    required: false
+    decimals: null
+    chart_group: default
+    origin_path: null
+    value: 0.203
+selected_variant: null
+confirmation:
+  source_mode: local
+  baseline_root: /home/liuy/DeepScientist/quests/003/baselines/local/flashmla-dsa-b200
+  comment: null
+  metric_contract_json_path: /home/liuy/DeepScientist/quests/003/baselines/local/flashmla-dsa-b200/json/metric_contract.json
+  metric_contract_json_rel_path: baselines/local/flashmla-dsa-b200/json/metric_contract.json
