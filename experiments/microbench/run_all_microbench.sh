@@ -24,10 +24,15 @@
 #     NOT overwrite the committed reference CSVs. Diff regen/ against the references
 #     to confirm a match on your hardware.
 #
+# Dependencies are vendored in-repo under thirdparty/ (no external paths needed):
+#   * thirdparty/FlashMLA            — pinned git submodule (gather4 reuses its TMA primitives)
+#                                      populate with: git submodule update --init --recursive
+#   * thirdparty/microbench-blackwell — vendored UMMA throughput/latency suite (MMA atoms)
+#
 # Usage:
 #   bash run_all_microbench.sh              # build + run all 5 (needs B200)
-#   FM=/path/to/FlashMLA bash run_all_microbench.sh
-#   MB_SUITE=/path/to/microbench-blackwell bash run_all_microbench.sh
+#   FM=/path/to/FlashMLA bash run_all_microbench.sh                 # override FlashMLA location
+#   MB_SUITE=/path/to/microbench-blackwell bash run_all_microbench.sh  # override MMA suite location
 # =============================================================================
 set -u
 
@@ -35,10 +40,11 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 cd "$HERE"
 REGEN="$HERE/regen"
 mkdir -p "$REGEN"
+REPO_ROOT="$(cd "$HERE/../.." && pwd)"
 
-# Paths to external dependencies (override via env).
-FM="${FM:-/home/liuy/code/FlashMLA}"                       # FlashMLA source (gather4 reuses its TMA primitives)
-MB_SUITE="${MB_SUITE:-/home/liuy/code/microbench-blackwell}" # external UMMA throughput/latency suite (MMA atoms)
+# Dependency locations default to the in-repo thirdparty/ copies (override via env).
+FM="${FM:-$REPO_ROOT/thirdparty/FlashMLA}"                       # FlashMLA submodule (gather4 reuses its TMA primitives)
+MB_SUITE="${MB_SUITE:-$REPO_ROOT/thirdparty/microbench-blackwell}" # vendored UMMA throughput/latency suite (MMA atoms)
 ARCH_F="${ARCH_F:-sm_100f}"   # gather4/exp2/correction
 ARCH_A="${ARCH_A:-sm_100a}"   # mbar_pipeline
 
@@ -134,9 +140,10 @@ else
 fi
 echo
 
-# ---- 1. MMA tensor-core atoms (external suite) ----------------------------
-# Listed last because it lives OUTSIDE this repo (separate UMMA throughput/latency suite).
-echo "[1/5] MMA — UMMA QK/SV throughput + single-op latency  (external suite)"
+# ---- 1. MMA tensor-core atoms (vendored UMMA suite) -----------------------
+# Listed last only for output ordering; the suite is vendored in-repo under
+# thirdparty/microbench-blackwell (self-contained CUDA, no CUTLASS needed).
+echo "[1/5] MMA — UMMA QK/SV throughput + single-op latency  (thirdparty/microbench-blackwell)"
 if [ -d "$MB_SUITE/umma_throughput" ]; then
   ( cd "$MB_SUITE/umma_throughput" && make >/dev/null 2>&1 && ./umma_tput.out ) 2>&1 | tee "$REGEN/umma_throughput.raw.txt" && \
     ok "umma_throughput -> regen/umma_throughput.raw.txt (ref: results/mma_costs.csv)" || \
@@ -149,7 +156,7 @@ if [ -d "$MB_SUITE/umma_throughput" ]; then
     note "umma_latency — not found under MB_SUITE=$MB_SUITE"
   fi
 else
-  note "MMA — external suite not found at MB_SUITE=$MB_SUITE/umma_throughput; set MB_SUITE=..."
+  note "MMA — UMMA suite not found at MB_SUITE=$MB_SUITE/umma_throughput; expected in-repo at thirdparty/microbench-blackwell (or set MB_SUITE=...)"
   echo "       (mma_costs.csv: QK=37.106 cyc/op SV=64.648 cyc/op; QK_lat=178 cyc SV_lat=210 cyc)"
 fi
 echo

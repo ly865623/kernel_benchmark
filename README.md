@@ -38,8 +38,14 @@ cd <repo-root>
 python experiments/microbench/dsa_stage_model_piecewise.py   # -> small 4.92% / regular 2.67% / both 3.88%
 
 # (B) Regenerate the microbench calibration data from scratch — needs a real B200 (sm_100) + nvcc.
+git submodule update --init --recursive                      # fetch thirdparty/FlashMLA (+ its CUTLASS) for the gather4 bench
 bash experiments/microbench/run_all_microbench.sh            # rebuilds + reruns all 5 primitive benches
 ```
+
+> All measurement dependencies are vendored under `thirdparty/`: the UMMA MMA suite
+> (`thirdparty/microbench-blackwell/`, committed directly) and FlashMLA
+> (`thirdparty/FlashMLA/`, a git submodule pinned at `48c6dc4`). Only the FlashMLA
+> submodule needs the `git submodule update --init --recursive` step above; path (A) needs neither.
 
 The model in (A) is the manuscript headline. The five primitive costs it consumes are produced by
 the microbenchmarks in (B); their reference outputs are committed, which is why (A) runs without a
@@ -79,9 +85,10 @@ ground truth it is *scored against*, or the legacy profiler-based cross-check in
 require a real B200 (sm100). **What does not:** the headline model and all evaluation/figure scripts
 (§7–§8) are pure post-processing of committed JSON/CSV and run anywhere with Python 3 + NumPy/Matplotlib.
 
-The on-GPU scripts locate the FlashMLA checkout through the `FLASHMLA_ROOT` (measurement harness) and
-`FM` (gather4 microbench) environment variables (default `/workspace/code/FlashMLA` and
-`/home/liuy/code/FlashMLA` respectively) and reuse its test harness / primitives unmodified.
+The whole-kernel measurement harness (§6) locates a *built* FlashMLA install through `FLASHMLA_ROOT`
+(default `/workspace/code/FlashMLA`) and reuses its test harness unmodified. The gather4 microbench
+(§5) instead reads FlashMLA's headers from the in-repo submodule `thirdparty/FlashMLA` by default
+(override with `FM=...`); no external checkout is required for the calibration path.
 
 ---
 
@@ -159,20 +166,22 @@ Each bench can also be built and run individually; the driver just wraps these.
 
 | # | Primitive → model constant (used in `dsa_stage_model_piecewise.py`) | Source + standalone command | Committed output |
 |---|---|---|---|
-| 1 | **MMA tensor-core** QK/SV throughput + single-op latency → `MMA_N128_CYC=37.106`/`LAT=178`, `MMA_N256_CYC=64.648`/`LAT=210` (cyc) | external UMMA suite `${MB_SUITE}/umma_throughput` (+ `umma_latency`): `make && ./umma_tput.out` | `experiments/microbench/results/mma_costs.csv` |
-| 2 | **Scattered KV gather** (`tile::gather4`) BW → `GATHER_NS_64≈16.2` ns / 64-token block (~2.0 TB/s) | `experiments/microbench/gather4_bench/build_and_run.sh` (reuses FlashMLA's own `ku::tma_gather4`; needs `FM=…/FlashMLA`, arch `sm_100f`) | `experiments/microbench/results/gather4_scatter_bw.csv` |
+| 1 | **MMA tensor-core** QK/SV throughput + single-op latency → `MMA_N128_CYC=37.106`/`LAT=178`, `MMA_N256_CYC=64.648`/`LAT=210` (cyc) | vendored UMMA suite `thirdparty/microbench-blackwell/umma_throughput` (+ `umma_latency`): `make && ./umma_tput.out` | `experiments/microbench/results/mma_costs.csv` |
+| 2 | **Scattered KV gather** (`tile::gather4`) BW → `GATHER_NS_64≈16.2` ns / 64-token block (~2.0 TB/s) | `experiments/microbench/gather4_bench/build_and_run.sh` (reuses FlashMLA's own `ku::tma_gather4` from `thirdparty/FlashMLA`, arch `sm_100f`) | `experiments/microbench/results/gather4_scatter_bw.csv` |
 | 3 | **Softmax `exp2`** register-resident `MUFU.EX2` SFU throughput → `EXP2_OPS_PER_S_PER_SM=24.8e9` | `nvcc -O3 -arch=sm_100f experiments/microbench/exp2_bench/exp2_tput.cu -o exp2_tput.out && ./exp2_tput.out` | `experiments/microbench/results/exp2_sfu.csv` |
 | 4 | **FP32-ALU correction** FMUL/FFMA rate for the online-softmax rescale → `FP32_MUL_OPS=176.567e9`, `FP32_FFMA_OPS=174.600e9` | `experiments/microbench/correction_bench/build_and_run.sh` (pure CUDA, arch `sm_100f`) | `experiments/microbench/correction_bench/corr_fp32_alu.csv` |
 | 5 | **Pipeline handshake** bare `mbarrier` cross-warp one-way signal latency → `H_ONEWAY_NS=140.33` (= 280.66 / 2) | `nvcc -O3 -std=c++17 -arch=sm_100a experiments/microbench/sync_bench/mbar_pipeline.cu -o mbar_pipeline.out && ./mbar_pipeline.out <stages> 4 100000` | `experiments/microbench/sync_bench/sweep*.csv` |
 
 Notes on the two "reuse-the-kernel's-own-primitive" benches:
 
-- **MMA (#1)** lives in a *separate* UMMA throughput/latency suite (`microbench-blackwell`), hence the
-  `MB_SUITE` env var; only its measured per-op cost is consumed (`mma_costs.csv`). It measures the
+- **MMA (#1)** is the standalone UMMA throughput/latency suite, vendored in-repo at
+  `thirdparty/microbench-blackwell/` (self-contained CUDA — `cuda_runtime`/`cuda_bf16`/`cuda_fp8`
+  only, no CUTLASS). Only its measured per-op cost is consumed (`mma_costs.csv`). It measures the
   tensor-core matmul atoms at the kernel's exact instruction shapes (QK: M128·N128·K16 BF16, 36
-  K-steps; SV: M128·N256·K16 BF16, 8 K-steps).
-- **gather4 (#2)** compiles FlashMLA's *own* `ku::tma_gather4` / CUTLASS headers at the kernel's exact
-  gather shape, so it measures the same hardware path the fused kernel pays — not a datasheet proxy.
+  K-steps; SV: M128·N256·K16 BF16, 8 K-steps). Override its location with `MB_SUITE=...` if needed.
+- **gather4 (#2)** compiles FlashMLA's *own* `ku::tma_gather4` / CUTLASS headers (from the
+  `thirdparty/FlashMLA` submodule) at the kernel's exact gather shape, so it measures the same
+  hardware path the fused kernel pays — not a datasheet proxy. Override with `FM=...`.
 - **exp2 (#3)**, **correction (#4)**, and **handshake (#5)** are self-contained CUDA.
 
 ### 5.3 What the numbers mean
@@ -317,6 +326,12 @@ experiments/
     dsa_stage_model_v2.py         <- App. A: EARLIER profiler-based stage model (cross-check, NOT the headline)
     dsa_predictor.py              <- App. A: standalone reference predictor (cross-check)
     stages/                       <- App. A profiler outputs
+
+thirdparty/                       <- vendored measurement dependencies
+  microbench-blackwell/           <- UMMA MMA throughput/latency suite (committed; self-contained CUDA)
+    umma_throughput/ umma_latency/  <- the MMA atom benches (-> results/mma_costs.csv)
+  FlashMLA/                       <- git submodule pinned at 48c6dc4 (gather4 reuses its TMA primitives)
+                                     populate with: git submodule update --init --recursive
 
 paper/                            <- outline, evidence ledger, manuscript bundle (LaTeX under paper/latex/)
 ```

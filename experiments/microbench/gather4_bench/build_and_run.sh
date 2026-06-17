@@ -1,8 +1,10 @@
 #!/bin/bash
 # Build + run the faithful FlashMLA KV-gather (TMA tile::gather4) microbench on B200.
+# FlashMLA headers come from the in-repo submodule thirdparty/FlashMLA by default
+# (populate with: git submodule update --init --recursive); override with FM=/path/to/FlashMLA.
 set -e
-FM=/home/liuy/code/FlashMLA
 HERE="$(cd "$(dirname "$0")" && pwd)"
+FM="${FM:-$(cd "$HERE/../../.." && pwd)/thirdparty/FlashMLA}"
 OUT="$HERE/gather4_tput.out"
 
 nvcc -O3 -std=c++17 \
